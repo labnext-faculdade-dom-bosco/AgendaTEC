@@ -1,7 +1,4 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
-
-### Estrutura do projeto
+# Estrutura do projeto
 ```plaintext
 AgendaTEC/
 
@@ -33,20 +30,87 @@ AgendaTEC/
         └── __init__.py
 ```
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# Iniciando
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Pré-requisitos
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+#### Obrigatórios:
+- [Python 3.10+](https://www.python.org/)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+#### Opcionais:
+- [PyCharm](https://www.jetbrains.com/pycharm/)
+
+**Observações:** 
+- O PyCharm, assim como outras IDEs da [JetBrains](https://www.jetbrains.com/) 
+pode ser utilizado na versão Professional de forma gratuita com o email institucional. 
+
+# Executando o projeto
+
+### Configurar variáveis de ambiente
+```
+cp .env.example .env
+```
+Em seguida, altere os valores conforme necessário.
+
+
+### Criar containers e subir a aplicação
+Realiza o build da aplicação, utilizado na primeira execução ou quando a estrutura do projeto é alterada.
+Ex.: Adição de novas bibliotecas, imagens, etc.
+```
+docker compose up --build -d
+```
+
+Sobe a aplicação sem realizar o build.
+```
+docker compose up
+```
+
+Derruba os containers e para a aplicação
+```
+docker compose down
+```
+
+### Banco de dados
+Para interagir com o banco de dados utilizamos o conceito de `migrações`.
+
+O comando de criar migrações percorre todo o projeto e verifica se algum modelo foi criado ou alterado, 
+O comando seguinte aplica de fato essas alterações no banco de dados, criando e/ou alterando tabelas.
+
+1. Criar migrações
+```
+docker compose exec web python3 manage.py makemigrations
+```
+
+2. Aplicar migrações
+```
+docker compose exec web python3 manage.py migrate
+```
+
+3. Criar superusuário (opcional)
+```
+docker compose exec web python3 manage.py createsuperuser
+```
+
+**Observações:** 
+- Na primeira vez executando o projeto, é necessário realizar os três passos acima.
+
+
+### Criando novo app
+No Django, um app é uma unidade modular de código que implementa uma funcionalidade específica do projeto.
+```
+docker compose exec web python3 manage.py startapp my_app_name
+```
+**Observações:** 
+- Ao criar um novo `app` é necessário adicioná-lo em `INSTALLED_APPS` do arquivo `setting.py` 
+para que o Django instale ele. 
+- Em seguida, é necessário utilizar os comandos `makemigrations` e `migrate`, 
+para criar as tabelas do novo `app` no banco de dados.
+
+
+### Rotas
+
+http://localhost:8000/ → Página principal da aplicação, onde ficam as views públicas do projeto. <br>
+http://localhost:8000/admin/ → Painel administrativo do Django, gerenciado pelo Django Admin. 
+Permite criar, editar e excluir registros do banco de dados.
