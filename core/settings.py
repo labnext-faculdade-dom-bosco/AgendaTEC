@@ -16,6 +16,7 @@ ALLOWED_HOSTS = []
 
 # Aplicações instaladas
 INSTALLED_APPS = [
+    "jazzmin",                      # Estilos personalizados para o Django Admin
     "django.contrib.admin",         # Interface de administração
     "django.contrib.auth",          # Sistema de autenticação e permissões
     "django.contrib.contenttypes",  # Relações genéricas entre modelos
@@ -85,3 +86,16 @@ USE_TZ = True
 
 # Arquivos estáticos
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+JAZZMIN_SETTINGS = {
+    "site_title": "AgendaTEC",
+    "site_header": "AgendaTEC",
+    "welcome_sign": "Bem-vindo(a)!",
+    "site_brand": "AgendaTEC",
+    "login_logo": "img/agenda_tec_logo.png",
+    "site_logo": "img/agenda_tec_logo.png",
+    "favicon": None,
+    "site_logo_classes": "img-fluid",
+}
