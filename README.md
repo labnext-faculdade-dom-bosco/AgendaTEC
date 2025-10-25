@@ -46,9 +46,92 @@ AgendaTEC/
 - O PyCharm, assim como outras IDEs da [JetBrains](https://www.jetbrains.com/) 
 pode ser utilizado na versão Professional de forma gratuita com o email institucional. 
 
+# Configuranco chave SSH
+1. Abra o terminal e execute o comando:
+    ```
+    ssh-keygen -t rsa -b 4096 -C "seu_email@exemplo.com" -f ~/.ssh/id_azure_rsa
+    ```
+    Por padrão, as chaves serão salvas em:<br>
+    ~/.ssh/id_rsa        (chave privada)<br>
+    ~/.ssh/id_rsa.pub    (chave pública)<br>
+
+    **OBS**: 
+   - O parâmetro **-f** passa o caminho e nome do arquivo em que as chaves serão geradas. 
+   Se não for passado, irá gerar um arquivo chamado id_rsa. Se você já tem uma chave SSH configurada 
+   para seu email pessoal pode conflitar. Por isso, é recomendado utilizar um nome específico para diferenciá-la.
+
+
+2. Inicie o agente SSH
+
+    Windows (Git Bash):
+    ```
+    eval $(ssh-agent -s)
+    ```
+    Linux:
+    ```
+    eval "$(ssh-agent -s)"
+    ```
+    Adicione a chave:
+    ```
+    ssh-add ~/.ssh/id_azure_rsa
+    ```
+    Se a chave tiver uma passphrase, você vai precisar digitá-la aqui.
+
+
+3. (opcional) Se você já possui uma chave SSH pessoal e não quer ter que informar qual chave 
+utilizar para cada projeto, pode configurar a identificação automática para cada repositório.
+    Para fazer isso, abra um arquivo com o comando:
+    ```
+    nano ~/.ssh/config 
+    ```
+    E preencha com os valores:
+    ```
+    Host github.com
+       HostName github.com
+       User git
+       IdentityFile ~/.ssh/id_rsa
+       IdentitiesOnly yes
+
+    Host ssh.dev.azure.com
+       HostName ssh.dev.azure.com
+       User git
+       IdentityFile ~/.ssh/id_azure_rsa
+       IdentitiesOnly yes
+    ```
+   **OBS:** No exemplo acima, a chave pessoal (Github) está no arquivo **id_rsa**, 
+    e a chave do ambiente Labnext (Azure) está no arquivo **id_azure_rsa**. 
+    Dessa forma, o git identifica qual chave usar de acordo com a origem do repositório, não sendo necessário informar
+    qual chave deve ser utilizada em cada projeto.
+
+
+4. Abra o arquivo da chave pública que você gerou e copie o texto dela (será utilizado nos passos seguintes).
+    ```
+    cat ~/.ssh/id_azure_rsa.pub
+    ```
+5. Acessar o Azure com o email institucional
+6. Clique no ícone da engrenagem/configurações (User settings)
+7. Clique na opção "SSH public keys"
+8. Clique no sinal de adição (+ New Key)
+9. Atribua um nome para a chave. Ex.: **<azure-ssh-key-seu-nome>**
+10. Cole o texto que você copiou no passo 4 no campo "Public Key Data"
+
+**OBS:** Nunca compartilhe a chave privada! Apenas a chave pública deve ir para o Azure.
+
+# Clonando o repositório
+Escolha uma pasta para organizar o projeto, e clone o repositório com o comando:
+```
+git clone https://labnextfdb@dev.azure.com/labnextfdb/AgendaTEC/_git/AgendaTEC
+```
+
 # Executando o projeto
 
 ### Configurar variáveis de ambiente
+Em ambiente Windows:
+```
+copy .env.example .env
+```
+
+Em ambiente Linux:
 ```
 cp .env.example .env
 ```
