@@ -1,0 +1,155 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+    <style>
+        #content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        #content-main {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .colM, .colMS {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        h1 { text-align: center; margin-bottom: 20px; color: #333; }
+        .fc-toolbar-title::first-letter, .fc-button::first-letter { text-transform: uppercase;}
+        .fc-event, .fc-event-main { cursor: pointer !important; }
+        #calendar {
+            max-width: 100%;
+            margin: 0;
+            background: white;
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+        #modalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; }
+        #modalOverlay.active { display: flex; align-items: center; justify-content: center; }
+
+        #modalBox { background: white; border-radius: 12px; padding: 0; width: 90%; max-width: 500px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        #modalHeader { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; }
+        #modalHeader h2 { margin: 0; font-size: 22px; }
+        #modalBody { padding: 25px; }
+
+        .content-row { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #eee; }
+        .content-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .content-row strong { display: block; font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .content-row span { display: block; font-size: 16px; color: #333; }
+
+        #modalFooter { padding: 15px 25px; border-top: 1px solid #eee; text-align: right; }
+        #btnClose { background: #667eea; color: white; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; }
+        #btnClose:hover { background: #5568d3; }
+    </style>
+{% endblock %}
+
+{% block extrahead %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div id="calendar"></div>
+
+    <div id="modalOverlay">
+        <div id="modalBox">
+            <div id="modalHeader">
+                <h2 id="eventTitle"></h2>
+            </div>
+            <div id="modalBody">
+                <div class="content-row">
+                    <strong>Data</strong>
+                    <span id="eventDate"></span>
+                </div>
+                <div class="content-row">
+                    <strong>Descrição</strong>
+                    <span id="eventDescription"></span>
+                </div>
+                <div class="content-row">
+                    <strong>Local</strong>
+                    <span id="eventLocal"></span>
+                </div>
+                <div class="content-row">
+                    <strong>Disciplina</strong>
+                    <span id="eventDiscipline"></span>
+                </div>
+            </div>
+            <div id="modalFooter">
+                <button id="btnClose">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/pt-br.global.min.js"></script>
+
+    <script>
+        var modalOverlay = document.getElementById('modalOverlay');
+        var btnClose = document.getElementById('btnClose');
+
+        function ShowModal(evento) {
+            document.getElementById('eventTitle').textContent = evento.title;
+            document.getElementById('eventDate').textContent = evento.start.toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('eventDescription').textContent = evento.extendedProps.description || 'Sem descrição';
+            document.getElementById('eventLocal').textContent = evento.extendedProps.event_local || 'Não informado';
+            document.getElementById('eventDiscipline').textContent = evento.extendedProps.discipline || 'Não informada';
+
+            modalOverlay.classList.add('active');
+        }
+
+        function CloseModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        btnClose.addEventListener('click', CloseModal);
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                CloseModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pt-br',
+                events: '/api/events/',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'Hoje',
+                    month: 'Mês',
+                    week: 'Semana',
+                    day: 'Dia'
+                },
+                height: 'auto',
+                navLinks: true,
+                dayMaxEvents: true,
+                expandRows: true,
+
+                eventClick: function(info) {
+                    info.jsEvent.preventDefault();
+                    ShowModal(info.event);
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}
