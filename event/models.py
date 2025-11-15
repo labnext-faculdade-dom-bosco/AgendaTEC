@@ -29,3 +29,9 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class CalendarModelView(models.Model):
+    class Meta:
+        managed = False  # Não cria tabela no banco
+        verbose_name = "Calendário"
