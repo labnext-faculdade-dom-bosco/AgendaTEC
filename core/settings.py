@@ -24,7 +24,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",      # Sistema de mensagens temporárias (flash messages)
     "django.contrib.staticfiles",   # Gerenciamento de arquivos estáticos (CSS, JS, imagens)
     "auth_user_custom",             # Aplicativo Customizado, Autenticação de Usuário customizada
-    "event",                        #
+    "event",                        # Cadastro de eventos
+    "message",                      # Envio de mensagem via WhatsApp
 ]
 
 AUTH_USER_MODEL = 'auth_user_custom.User'
