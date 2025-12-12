@@ -192,6 +192,26 @@ para que o Django instale ele.
 para criar as tabelas do novo `app` no banco de dados.
 
 
+### Realizando testes
+#### 1. Executando teste específico:
+
+```
+docker compose exec web python3 manage.py test message.tests.WahaServiceTestCase.test_send_message
+```
+
+#### 2. Executando todos os testes da classe
+```
+docker compose exec web python3 manage.py test message.tests.WahaServiceTestCase
+```
+
+#### 3. Executando todos os testes do app
+```
+docker compose exec web python3 manage.py test message
+```
+Obs: 
+- Substituir de acordo com o nome do app/classe/método. Nesse exemplo, os testes serão realizados no app **message**
+que é utilizado para enviar mensagens pelo WhatsApp.
+
 ### Rotas
 
 http://localhost:8000/ → Página principal da aplicação, onde ficam as views públicas do projeto. <br>
