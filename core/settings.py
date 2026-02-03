@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config
+from celery.schedules import crontab
 import os
 
 # Diretório base do projeto
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",      # Suporte a sessões de usuário
     "django.contrib.messages",      # Sistema de mensagens temporárias (flash messages)
     "django.contrib.staticfiles",   # Gerenciamento de arquivos estáticos (CSS, JS, imagens)
+    "django_celery_beat",           # Agendamento de tarefas
     "auth_user_custom",             # Aplicativo Customizado, Autenticação de Usuário customizada
     "event",                        # Cadastro de eventos
     "message",                      # Envio de mensagem via WhatsApp
@@ -103,4 +105,19 @@ JAZZMIN_SETTINGS = {
     "site_logo": "img/agenda_tec_logo.png",
     "favicon": None,
     "site_logo_classes": "img-fluid",
+}
+
+# Envio automático de mensagens
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_BEAT_SCHEDULE = {
+    'send-whatsapp-daily-message': {
+        'task': 'message.tasks.dispatch_notifications',
+        'schedule': crontab(hour=7, minute=0),
+    },
 }
