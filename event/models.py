@@ -6,6 +6,12 @@ class Discipline(models.Model):
     description = models.TextField(null=True, blank=True, verbose_name="Descrição")
     is_active = models.BooleanField(default=True, verbose_name="Ativo")
     teacher = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT, verbose_name="Professor(a)")
+    students = models.ManyToManyField(
+        User,
+        through='Registration',
+        related_name='disciplines',
+        verbose_name='Disciplinas'
+    )
 
     class Meta:
         verbose_name = "Disciplina"
@@ -29,6 +35,20 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Registration(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Aluno")
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Disciplina")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
+
+    class Meta:
+        verbose_name = "Matrícula"
+        verbose_name_plural = "Matrículas"
+        unique_together = ('student', 'discipline')
+
+    def __str__(self):
+        return f"{self.student} - {self.discipline}"
 
 
 class CalendarModelView(models.Model):

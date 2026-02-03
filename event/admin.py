@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from event.models import Event, Discipline, CalendarModelView
+from event.models import Event, Discipline, Registration, CalendarModelView
 
 
 @admin.register(Discipline)
@@ -16,6 +16,13 @@ class DisciplineAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'description',)
     search_fields = ('title',)
+    list_filter = ('is_active',)
+
+
+@admin.register(Registration)
+class RegistrationAdmin(admin.ModelAdmin):
+    list_display = ('student', 'discipline',)
+    search_fields = ('student',)
     list_filter = ('is_active',)
 
 
