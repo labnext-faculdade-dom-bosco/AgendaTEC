@@ -20,6 +20,7 @@ services:
     init: true
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:15
@@ -33,5 +34,63 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: wpp_bot_waha
+    restart: always
+    ports:
+      - "${WAHA_PORT}:3000"
+    environment:
+      WAHA_HTTP_BIND_ADDRESS: "0.0.0.0"
+      WAHA_API_KEY: "${WAHA_API_KEY}"
+      WAHA_DASHBOARD_USERNAME: "${WAHA_DASHBOARD_USER}"
+      WAHA_DASHBOARD_PASSWORD: "${WAHA_DASHBOARD_PASS}"
+      WHATSAPP_SWAGGER_USERNAME: "${WAHA_SWAGGER_USER}"
+      WHATSAPP_SWAGGER_PASSWORD: "${WAHA_SWAGGER_PASS}"
+      WAHA_PRINT_QR: "${WAHA_PRINT_QR}"
+      WAHA_LOG_LEVEL: "${WAHA_LOG_LEVEL}"
+      WHATSAPP_DEFAULT_ENGINE: "WEBJS"
+      WHATSAPP_START_SESSION: "default"
+      WHATSAPP_RESTART_ALL_SESSIONS: "true"
+      WHATSAPP_SESSIONS_ON_INIT: "default"
+    volumes:
+      - waha_data:/app/.waha
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: .
+    command: celery -A core worker -l info
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - WAHA_API_KEY=${WAHA_API_KEY}
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build: .
+    command: celery -A core beat -l info
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - WAHA_API_KEY=${WAHA_API_KEY}
+    depends_on:
+      - redis
+      - db
+
 volumes:
   pgdata:
+  waha_data:
