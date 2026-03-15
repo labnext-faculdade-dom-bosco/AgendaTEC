@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+<style>
+.import-wrap { max-width: 560px; margin: 2rem auto; font-family: -apple-system, sans-serif; }
+.import-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 2rem; }
+.import-card h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; color: #101828; }
+.import-card p.sub { font-size: 13px; color: #667085; margin: 0 0 1.5rem; }
+.upload-zone { border: 2px dashed #d0d5dd; border-radius: 10px; padding: 2.5rem; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; position: relative; }
+.upload-zone:hover { border-color: #1D9E75; background: #f6fef9; }
+.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-zone .icon { width: 40px; height: 40px; background: #d1fadf; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 18px; }
+.upload-zone .title { font-size: 14px; font-weight: 500; color: #344054; }
+.upload-zone .hint { font-size: 12px; color: #98a2b3; margin-top: 4px; }
+.upload-zone .hint span { color: #1D9E75; font-weight: 500; }
+.divider { height: 1px; background: #f2f4f7; margin: 1.5rem 0; }
+.col-label { font-size: 11px; font-weight: 600; color: #98a2b3; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.col-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.col-tag { background: #f9fafb; border: 1px solid #e4e7ec; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-family: monospace; color: #344054; }
+.tip { display: flex; gap: 8px; align-items: flex-start; background: #f6fef9; border: 1px solid #d1fadf; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #027a48; margin-top: 12px; }
+.actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+.btn-submit { flex: 1; padding: 10px; background: #1D9E75; border: none; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+.btn-submit:hover { background: #0F6E56; }
+.btn-cancel { padding: 10px 16px; background: #fff; border: 1px solid #d0d5dd; border-radius: 8px; color: #344054; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+.erros { margin-top: 1.5rem; background: #fff5f5; border: 1px solid #fecdca; border-radius: 8px; padding: 1rem; }
+.erros h3 { font-size: 13px; font-weight: 600; color: #b42318; margin: 0 0 8px; }
+.erros li { font-size: 12px; color: #b42318; margin-bottom: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="import-wrap">
+    <div class="import-card">
+        <h1>Importar eventos</h1>
+        <p class="sub">Faça upload de uma planilha .xlsx para criar registros em lote.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="upload-zone">
+                <input type="file" name="file" accept=".xlsx" required>
+                <div class="icon">↑</div>
+                <p class="title">Arraste o arquivo aqui</p>
+                <p class="hint">ou <span>clique para selecionar</span> · apenas .xlsx</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="col-label">Colunas esperadas</p>
+            <div class="col-grid">
+                <span class="col-tag">Título</span>
+                <span class="col-tag">Descrição</span>
+                <span class="col-tag">Data e horário</span>
+                <span class="col-tag">Local</span>
+                <span class="col-tag">Disciplina</span>
+            </div>
+            <div class="tip">
+                ℹ️ A primeira linha deve ser o cabeçalho.
+            </div>
+
+            <div class="actions">
+                <a href=".." class="btn-cancel">Cancelar</a>
+                <button type="submit" class="btn-submit">Importar eventos</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelector('input[type=file]').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const size = file.size > 1024 * 1024
+        ? (file.size / 1024 / 1024).toFixed(1) + ' MB'
+        : (file.size / 1024).toFixed(0) + ' KB';
+
+    document.querySelector('.upload-zone .title').textContent = file.name;
+    document.querySelector('.upload-zone .hint').textContent = size;
+    document.querySelector('.upload-zone').style.borderColor = '#1D9E75';
+    document.querySelector('.upload-zone').style.background = '#f6fef9';
+});
+</script>
+{% endblock %}

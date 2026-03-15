@@ -6,3 +6,4 @@ django-jazzmin==3.0.1
 requests>=2.32.3
 celery==5.2.3
 redis>=4.0
+openpyxl==3.1.5
