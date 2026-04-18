@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "auth_user_custom",             # Aplicativo Customizado, Autenticação de Usuário customizada
     "event",                        # Cadastro de eventos
     "message",                      # Envio de mensagem via WhatsApp
+    "academic",                     # Conteúdo acadêmico
 ]
 
 AUTH_USER_MODEL = 'auth_user_custom.User'
@@ -95,6 +96,10 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Arquivos de mídia (uploads)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 JAZZMIN_SETTINGS = {
     "site_title": "AgendaTEC",
