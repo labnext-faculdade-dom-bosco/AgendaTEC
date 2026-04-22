@@ -43,3 +43,26 @@ class AcademicFaq(models.Model):
 
     def __str__(self):
         return self.question
+
+
+class JobOpportunity(models.Model):
+    title = models.CharField(max_length=500, verbose_name="Título")
+    description = models.TextField(verbose_name="Descrição")
+    contract_type = models.CharField(
+        max_length=30,
+        choices=[
+            ("internship", "Estágio"),
+            ("effective", "Efetivo"),
+        ],
+        verbose_name="Tipo do Contrato",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
+    created_on = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
+    updated_on = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
+
+    class Meta:
+        verbose_name = "Vagas"
+        verbose_name_plural = "Vagas"
+
+    def __str__(self):
+        return self.title
