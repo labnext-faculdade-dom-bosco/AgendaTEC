@@ -12,7 +12,7 @@ class AcademicContentAdmin(admin.ModelAdmin):
 @admin.register(AcademicFaq)
 class AcademicFaqAdmin(admin.ModelAdmin):
     list_display = ("question", "answer",)
-    search_fields = ("title", "description",)
+    search_fields = ("question", "answer",)
     list_filter = ("is_active",)
 
 

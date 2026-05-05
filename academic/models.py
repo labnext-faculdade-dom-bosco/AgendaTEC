@@ -32,8 +32,8 @@ class AcademicContent(models.Model):
 
 class AcademicFaq(models.Model):
     question = models.CharField(max_length=500, verbose_name="Pergunta")
-    answer = models.TextField(verbose_name="Respota")
-    is_active = models.BooleanField(default=True)
+    answer = models.TextField(verbose_name="Resposta")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
     created_on = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
 

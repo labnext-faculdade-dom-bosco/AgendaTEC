@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from event.models import Event, Discipline, Registration, CalendarModelView
 from event.forms import ExcelImportForm
+from django.utils import timezone
+from datetime import datetime
 import openpyxl
 
 
@@ -38,24 +40,41 @@ class EventAdmin(admin.ModelAdmin):
                 wb = openpyxl.load_workbook(request.FILES['file'])
                 ws = wb.active
 
+                errors = []
                 for i, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
                     title = row[0]
                     description = row[1]
-                    event_date = row[2]
+                    event_date_str = row[2]
                     event_local = row[3]
                     discipline_name = row[4]
 
-                    discipline = Discipline.objects.get(name=discipline_name)
-                    if discipline:
-                        Event.objects.create(
-                            title=title,
-                            description=description,
-                            event_date=event_date,
-                            event_local=event_local,
-                            discipline=discipline,
-                            is_active=True,
-                        )
-                return redirect('admin:event_event_changelist')
+                    # Validação de data
+                    event_date = datetime.strptime(event_date_str, "%Y-%m-%d %H:%M")
+                    event_date = timezone.make_aware(event_date)
+                    if event_date and event_date.date() < timezone.localdate():
+                        errors.append(f"Linha {i}: data no passado ({event_date.strftime('%d/%m/%Y')})")
+                        continue
+
+                    try:
+                        discipline = Discipline.objects.get(name=discipline_name)
+                    except Discipline.DoesNotExist:
+                        errors.append(f"Linha {i}: disciplina '{discipline_name}' não encontrada")
+                        continue
+
+                    Event.objects.create(
+                        title=title,
+                        description=description,
+                        event_date=event_date,
+                        event_local=event_local,
+                        discipline=discipline,
+                        is_active=True,
+                    )
+
+                # Adiciona as mensagens de erro ao template
+                if errors:
+                    form.add_error(None, f"Algumas linhas foram ignoradas: {'; '.join(errors)}")
+                else:
+                    return redirect('admin:event_event_changelist')
 
         context = {
             **self.admin_site.each_context(request),  # mantém sidebar, usuário etc.

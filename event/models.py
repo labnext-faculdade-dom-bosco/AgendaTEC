@@ -1,5 +1,8 @@
 from django.db import models
 from auth_user_custom.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
 
 class Discipline(models.Model):
     name = models.CharField(max_length=100, blank=False, verbose_name="Nome")
@@ -25,7 +28,7 @@ class Event(models.Model):
     title = models.CharField(max_length=100, blank=False, verbose_name="Título")
     description = models.TextField(null=True, blank=True, verbose_name="Descrição")
     event_date = models.DateTimeField(verbose_name="Data e hora do evento")
-    event_local = models.TextField(null=True, blank=True, verbose_name="Local do evento")
+    event_local = models.TextField(verbose_name="Local do evento")
     discipline = models.ForeignKey(Discipline, on_delete=models.PROTECT, verbose_name="Disciplina")
     is_active = models.BooleanField(default=True, verbose_name="Ativo")
 
@@ -35,6 +38,14 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        if self.event_date and (self.event_date < timezone.now()):
+            raise ValidationError({"event_date": "A data não pode ser no passado."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Registration(models.Model):

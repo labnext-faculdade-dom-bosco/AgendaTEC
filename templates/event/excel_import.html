@@ -62,6 +62,17 @@
                 <button type="submit" class="btn-submit">Importar eventos</button>
             </div>
         </form>
+
+        {% if form.non_field_errors %}
+        <div class="erros">
+            <h3>Linhas ignoradas</h3>
+            <ul>
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 </div>
 
