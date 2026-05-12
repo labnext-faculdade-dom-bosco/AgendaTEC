@@ -23,7 +23,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("", admin.site.urls),
     path("calendar/", views.CalendarView.as_view(), name="calendar"),
     path("api/events/", views.EventListView.as_view(), name="event-list")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
