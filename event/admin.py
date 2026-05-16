@@ -87,9 +87,19 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('student', 'discipline',)
-    search_fields = ('student',)
+    list_display = ('discipline', 'get_teacher_name')
+    search_fields = ('student__username',)
     list_filter = ('is_active',)
+
+    @admin.display(description="Professor")
+    def get_teacher_name(self, record):
+        return record.discipline.teacher
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(student=request.user)
 
 
 @admin.register(CalendarModelView)

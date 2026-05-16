@@ -30,9 +30,15 @@ INSTALLED_APPS = [
     "event",                        # Cadastro de eventos
     "message",                      # Envio de mensagem via WhatsApp
     "academic",                     # Conteúdo acadêmico
+    "gvdasa",                       # Integração com o portal da faculdade
 ]
 
 AUTH_USER_MODEL = 'auth_user_custom.User'
+
+AUTHENTICATION_BACKENDS = [
+    "gvdasa.authentication.GvdasaBackend",        # Camada de autenticação customizada (Gvdasa)
+    "django.contrib.auth.backends.ModelBackend",  # Camada de autenticação padrão do Django
+]
 
 # Middlewares
 MIDDLEWARE = [
