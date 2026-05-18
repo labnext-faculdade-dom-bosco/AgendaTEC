@@ -16,14 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from event import views
-
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve
 
 urlpatterns = [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path("", admin.site.urls),
     path("calendar/", views.CalendarView.as_view(), name="calendar"),
-    path("api/events/", views.EventListView.as_view(), name="event-list")
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("api/events/", views.EventListView.as_view(), name="event-list"),
+]
