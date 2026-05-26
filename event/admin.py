@@ -95,6 +95,10 @@ class RegistrationAdmin(admin.ModelAdmin):
     def get_teacher_name(self, record):
         return record.discipline.teacher
 
+    def has_module_permission(self, request):
+        """ Mostra o menu somente para usuários do grupo Aluno """
+        return request.user.groups.filter(name="Aluno").exists()
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
