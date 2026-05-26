@@ -18,7 +18,7 @@ class Discipline(models.Model):
 
     class Meta:
         verbose_name = "Disciplina"
-        verbose_name_plural = "Disciplinas"
+        verbose_name_plural = "Disciplinas cadastradas"
 
     def __str__(self):
         return self.name
@@ -55,7 +55,7 @@ class Registration(models.Model):
 
     class Meta:
         verbose_name = "Matrícula"
-        verbose_name_plural = "Matrículas"
+        verbose_name_plural = "Disciplinas do semestre"
         unique_together = ('student', 'discipline')
 
     def __str__(self):
