@@ -1,0 +1,27 @@
+{% extends "admin/login.html" %}
+{% load socialaccount %}
+
+{% block content %}
+{{ block.super }}
+
+<style>
+    .ms-login-btn:hover {
+        background: #0078d4 !important;
+        color: white !important;
+    }
+</style>
+
+<div style="margin-top: 20px; text-align: center;">
+    <a href="{% provider_login_url 'microsoft' %}"
+       class="ms-login-btn"
+       style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; background: white; color: #0078d4; text-decoration: none; border-radius: 4px; border: 2px solid #0078d4; font-family: Arial, sans-serif; font-size: 14px; transition: background 0.2s, color 0.2s;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21">
+            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+        </svg>
+        Login
+    </a>
+</div>
+{% endblock %}

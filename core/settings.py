@@ -16,6 +16,29 @@ DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
 
+# Configuração do Azure
+AZURE_TENANT_ID = config("AZURE_TENANT_ID")
+AZURE_CLIENT_ID = config("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = config("AZURE_CLIENT_SECRET")
+
+SITE_ID = 1                        # ID do site ativo no banco
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Redireciona direto para o provedor
+
+# Configurações dos provedores OAuth (credenciais, escopos, tenant)
+SOCIALACCOUNT_PROVIDERS = {
+    "microsoft": {
+        "APP": {
+            "client_id": AZURE_CLIENT_ID,
+            "secret": AZURE_CLIENT_SECRET,
+        },
+        "TENANT": AZURE_TENANT_ID,
+        "SCOPE": ["User.Read"],
+    }
+}
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
 # Aplicações instaladas
 INSTALLED_APPS = [
     "jazzmin",                      # Estilos personalizados para o Django Admin
@@ -25,12 +48,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",      # Suporte a sessões de usuário
     "django.contrib.messages",      # Sistema de mensagens temporárias (flash messages)
     "django.contrib.staticfiles",   # Gerenciamento de arquivos estáticos (CSS, JS, imagens)
+    "django.contrib.sites",         # Dependência exigida pelo allauth
     "django_celery_beat",           # Agendamento de tarefas
     "auth_user_custom",             # Aplicativo Customizado, Autenticação de Usuário customizada
     "event",                        # Cadastro de eventos
     "message",                      # Envio de mensagem via WhatsApp
     "academic",                     # Conteúdo acadêmico
     "gvdasa",                       # Integração com o portal da faculdade
+    "allauth",                      # Core do django-allauth
+    "allauth.account",              # Gerenciamento de contas locais (login, logout, cadastro)
+    "allauth.socialaccount",        # Suporte a autenticação via provedores externos (OAuth)
+    "allauth.socialaccount.providers.microsoft",  # Provedor Microsoft (Azure AD)
 ]
 
 AUTH_USER_MODEL = 'auth_user_custom.User'
@@ -38,6 +66,7 @@ AUTH_USER_MODEL = 'auth_user_custom.User'
 AUTHENTICATION_BACKENDS = [
     "gvdasa.authentication.GvdasaBackend",        # Camada de autenticação customizada (Gvdasa)
     "django.contrib.auth.backends.ModelBackend",  # Camada de autenticação padrão do Django
+    "allauth.account.auth_backends.AuthenticationBackend",  # Camada de autenticação com uma conta Microsoft
 ]
 
 # Middlewares
@@ -49,6 +78,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",  # Associa o usuário autenticado à requisição
     "django.contrib.messages.middleware.MessageMiddleware",     # Sistema de mensagens (flash messages)
     "django.middleware.clickjacking.XFrameOptionsMiddleware",   # Proteção contra clickjacking
+    "allauth.account.middleware.AccountMiddleware",             # Gerencia estado da sessão de autenticação
 ]
 
 # Configuração de URLs e WSGI
