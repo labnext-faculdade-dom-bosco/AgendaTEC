@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from event import views
 from django.conf import settings
 from django.views.static import serve
@@ -25,5 +25,6 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path("calendar/", views.CalendarView.as_view(), name="calendar"),
     path("api/events/", views.EventListView.as_view(), name="event-list"),
+    path('accounts/', include('allauth.urls')),
     path("", admin.site.urls),
 ]

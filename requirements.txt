@@ -3,6 +3,7 @@ python-decouple>=3.8,<4.0
 psycopg2>=2.9,<3.0
 django_celery_beat
 django-jazzmin==3.0.1
+django-allauth>=65.18.0
 requests>=2.32.3
 celery==5.2.3
 redis>=4.0
