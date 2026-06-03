@@ -240,7 +240,9 @@ O Caddy emite e renova o certificado Let's Encrypt automaticamente.
 
 ```
 meusite.com.br {
-    reverse_proxy web:8000
+    reverse_proxy web:8000 {
+        header_up X-Forwarded-Proto {scheme}
+    }
 }
 ```
 
