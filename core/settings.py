@@ -16,6 +16,9 @@ DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
 
+# Segurança / Proxy
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Configuração do Azure
 AZURE_TENANT_ID = config("AZURE_TENANT_ID")
 AZURE_CLIENT_ID = config("AZURE_CLIENT_ID")
@@ -23,6 +26,7 @@ AZURE_CLIENT_SECRET = config("AZURE_CLIENT_SECRET")
 
 SITE_ID = 1                        # ID do site ativo no banco
 SOCIALACCOUNT_LOGIN_ON_GET = True  # Redireciona direto para o provedor
+ACCOUNT_EMAIL_VERIFICATION = "none"  # Desabilita a confirmação de email
 
 # Configurações dos provedores OAuth (credenciais, escopos, tenant)
 SOCIALACCOUNT_PROVIDERS = {
@@ -64,7 +68,6 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'auth_user_custom.User'
 
 AUTHENTICATION_BACKENDS = [
-    "gvdasa.authentication.GvdasaBackend",        # Camada de autenticação customizada (Gvdasa)
     "django.contrib.auth.backends.ModelBackend",  # Camada de autenticação padrão do Django
     "allauth.account.auth_backends.AuthenticationBackend",  # Camada de autenticação com uma conta Microsoft
 ]
