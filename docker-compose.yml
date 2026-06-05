@@ -59,8 +59,11 @@ services:
       WHATSAPP_START_SESSION: "default"
       WHATSAPP_RESTART_ALL_SESSIONS: "true"
       WHATSAPP_SESSIONS_ON_INIT: "default"
+      WAHA_BASE_URL: "https://teste.agendatec.faculdadedombosco.net.br"
     volumes:
       - waha_data:/app/.waha
+    networks:
+      - web
 
   redis:
     image: redis:7
