@@ -14,4 +14,15 @@ teste.agendatec.faculdadedombosco.net.br {
     reverse_proxy web:8000 {
         header_up X-Forwarded-Proto {scheme}
     }
+
+    log {
+        output file /data/logs/access.log {
+            roll_size 10mb
+            roll_keep 10
+            roll_keep_for 720h
+            mode 0644
+        }
+        format json
+        level INFO
+    }
 }
