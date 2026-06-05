@@ -116,6 +116,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data # Armazena os certificados TLS
       - caddy_config:/config
+      - ./logs/caddy:/data/logs
     networks:
       - web
 
