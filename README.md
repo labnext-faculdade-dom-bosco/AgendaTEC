@@ -30,6 +30,8 @@ AgendaTEC/
     └── migrations/      # Histórico de migrações do banco de dados
         └── __init__.py
 ```
+# Topologia de rede
+![Topologia de rede](docker_network_topology.svg)
 
 # Iniciando
 
@@ -247,6 +249,25 @@ meusite.com.br {
 ```
 
 `web` é o nome do serviço Django no `docker-compose.yml`.
+
+### Configurando logs de acesso
+Para configurar logs no Caddy, basta adicionar essa seção:
+```
+log {
+    output file /data/logs/access.log {
+        roll_size 10mb
+        roll_keep 10
+        roll_keep_for 720h
+        mode 0644
+    }
+    format json
+    level INFO
+}
+```
+- roll_size: Tamanho de cada arquivo de log;
+- rool_keep: Quantidade de arquivos de log;
+- roll_keep_for: Quantidade de horas que ele mantém os registros de log (default: 30 dias);
+- mode 0644: Permissão de leitura no arquivo
 
 ---
 
