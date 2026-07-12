@@ -50,10 +50,17 @@ AgendaTEC/
 pode ser utilizado na versão Professional de forma gratuita com o email institucional. 
 
 # Configurando chave SSH
+Em ambiente Linux:
 1. Abra o terminal e execute o comando:
     ```
     ssh-keygen -t rsa -b 4096 -C "seu_email@exemplo.com" -f ~/.ssh/id_azure_rsa
     ```
+
+Em ambiente Windows:
+    ```
+    ssh-keygen -t rsa -b 4096 -C "seu_email@exemplo.com" -f C:\Users\SEU_USUARIO\.ssh\id_azure_rsa
+    ```
+
     Por padrão, as chaves serão salvas em:<br>
     ~/.ssh/id_rsa        (chave privada)<br>
     ~/.ssh/id_rsa.pub    (chave pública)<br>
@@ -66,19 +73,35 @@ pode ser utilizado na versão Professional de forma gratuita com o email institu
 
 2. Inicie o agente SSH
 
-    Windows (Git Bash):
-    ```
-    eval $(ssh-agent -s)
-    ```
-    Linux:
-    ```
-    eval "$(ssh-agent -s)"
-    ```
-    Adicione a chave:
-    ```
-    ssh-add ~/.ssh/id_azure_rsa
-    ```
-    Se a chave tiver uma passphrase, você vai precisar digitá-la aqui.
+  Windows (Power Shell Admin):
+
+  **OBS**: 
+  O agente ssh por padrão vem desabilitado esses comandos servem para inicializá-lo: 
+  ```
+  Set-Service -Name ssh-agent -StartupType Manual
+  ```
+  ```
+  Start-Service ssh-agent
+  ```
+
+  Linux:
+  ```
+  eval "$(ssh-agent -s)"
+  ```
+
+  Adicione a chave:
+    
+  Linux:
+  ```
+  ssh-add ~/.ssh/id_azure_rsa
+  ```
+
+  Windows:
+  ```
+  ssh-add C:\Users\SEU_USUARIO\.ssh\id_azure_rsa
+  ```
+
+  Se a chave tiver uma passphrase, você vai precisar digitá-la aqui.
 
 
 3. (opcional) Se você já possui uma chave SSH pessoal e não quer ter que informar qual chave 
@@ -108,8 +131,14 @@ utilizar para cada projeto, pode configurar a identificação automática para c
 
 
 4. Abra o arquivo da chave pública que você gerou e copie o texto dela (será utilizado nos passos seguintes).
+    Linux:
     ```
     cat ~/.ssh/id_azure_rsa.pub
+    ```
+
+    Windows:
+    ```
+    Get-Content C:\Users\rthai\.ssh\id_azure_rsa.pub
     ```
 5. Acessar o Azure com o email institucional
 6. Clique no ícone da engrenagem/configurações (User settings)
@@ -123,10 +152,16 @@ utilizar para cada projeto, pode configurar a identificação automática para c
 # Clonando o repositório
 Escolha uma pasta para organizar o projeto, e clone o repositório com o comando:
 ```
-git clone https://labnextfdb@dev.azure.com/labnextfdb/AgendaTEC/_git/AgendaTEC
+git clone git@ssh.dev.azure.com:v3/labnextfdb/AgendaTEC/AgendaTEC
+```
+**OBS:**
+Se o git clone via SSH pedir senha mesmo após configurar a chave, force o Git a usar o OpenSSH do Windows:
+```
+git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
 ```
 
 # Executando o projeto
+Com o projeto clonado abra na sua IDE e siga os passos abaixo:
 
 ### Configurar variáveis de ambiente
 Em ambiente Windows:
