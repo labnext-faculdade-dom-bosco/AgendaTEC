@@ -1,6 +1,10 @@
-teste.agendatec.faculdadedombosco.net.br {
+{$DOMAIN:localhost} {
     handle /dashboard* {
         reverse_proxy waha:3000
+    }
+
+    handle /api/events* {
+        reverse_proxy web:8000
     }
 
     handle /api* {

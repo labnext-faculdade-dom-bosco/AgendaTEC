@@ -1,0 +1,211 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AgendaTEC 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-02 00:00+0000\n"
+"PO-Revision-Date: 2026-09-02 00:00+0000\n"
+"Language: pt_BR\n"
+"Language-Team: AgendaTEC\n"
+"Last-Translator: AgendaTEC\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# django_celery_beat/apps.py
+msgid "Periodic Tasks"
+msgstr "Tarefas Periódicas"
+
+# django_celery_beat/models.py - Meta (PeriodicTask)
+msgid "periodic task"
+msgstr "tarefa periódica"
+
+msgid "periodic tasks"
+msgstr "tarefas periódicas"
+
+# django_celery_beat/models.py - PeriodicTask fields
+msgid "Name"
+msgstr "Nome"
+
+msgid "Short Description For This Task"
+msgstr "Descrição curta desta tarefa"
+
+msgid "Task Name"
+msgstr "Nome da Tarefa"
+
+msgid "The Name of the Celery Task that Should be Run.  (Example: \"proj.tasks.import_contacts\")"
+msgstr "O nome da tarefa do Celery que deve ser executada. (Exemplo: \"proj.tasks.import_contacts\")"
+
+msgid "Interval Schedule"
+msgstr "Agendamento por Intervalo"
+
+msgid "Crontab Schedule"
+msgstr "Agendamento Crontab"
+
+msgid "Solar Schedule"
+msgstr "Agendamento Solar"
+
+msgid "Clocked Schedule"
+msgstr "Agendamento por Data/Hora"
+
+msgid "Interval Schedule to run the task on.  Set only one schedule type, leave the others null."
+msgstr "Agendamento por intervalo em que a tarefa deve rodar. Defina apenas um tipo de agendamento, deixe os outros em branco."
+
+msgid "Crontab Schedule to run the task on.  Set only one schedule type, leave the others null."
+msgstr "Agendamento crontab em que a tarefa deve rodar. Defina apenas um tipo de agendamento, deixe os outros em branco."
+
+msgid "Solar Schedule to run the task on.  Set only one schedule type, leave the others null."
+msgstr "Agendamento solar em que a tarefa deve rodar. Defina apenas um tipo de agendamento, deixe os outros em branco."
+
+msgid "Clocked Schedule to run the task on.  Set only one schedule type, leave the others null."
+msgstr "Agendamento por data/hora em que a tarefa deve rodar. Defina apenas um tipo de agendamento, deixe os outros em branco."
+
+msgid "Positional Arguments"
+msgstr "Argumentos Posicionais"
+
+msgid "JSON encoded positional arguments (Example: [\"arg1\", \"arg2\"])"
+msgstr "Argumentos posicionais em JSON (Exemplo: [\"arg1\", \"arg2\"])"
+
+msgid "Keyword Arguments"
+msgstr "Argumentos Nomeados"
+
+msgid "JSON encoded keyword arguments (Example: {\"argument\": \"value\"})"
+msgstr "Argumentos nomeados em JSON (Exemplo: {\"argument\": \"value\"})"
+
+msgid "Queue Override"
+msgstr "Fila Personalizada"
+
+msgid "Queue defined in CELERY_TASK_QUEUES. Leave None for default queuing."
+msgstr "Fila definida em CELERY_TASK_QUEUES. Deixe em branco para usar a fila padrão."
+
+msgid "Exchange"
+msgstr "Exchange"
+
+msgid "Override Exchange for low-level AMQP routing"
+msgstr "Substitui o Exchange para roteamento AMQP de baixo nível"
+
+msgid "Routing Key"
+msgstr "Chave de Roteamento"
+
+msgid "Override Routing Key for low-level AMQP routing"
+msgstr "Substitui a Routing Key para roteamento AMQP de baixo nível"
+
+msgid "AMQP Message Headers"
+msgstr "Cabeçalhos da Mensagem AMQP"
+
+msgid "JSON encoded message headers for the AMQP message."
+msgstr "Cabeçalhos da mensagem AMQP, em formato JSON."
+
+msgid "Priority"
+msgstr "Prioridade"
+
+msgid "Priority Number between 0 and 255. Supported by: RabbitMQ, Redis (priority reversed, 0 is highest)."
+msgstr "Número de prioridade entre 0 e 255. Suportado por: RabbitMQ, Redis (prioridade invertida, 0 é a mais alta)."
+
+msgid "Expires Datetime"
+msgstr "Data/Hora de Expiração"
+
+msgid "Datetime after which the schedule will no longer trigger the task to run"
+msgstr "Data/hora após a qual o agendamento deixará de disparar a execução da tarefa"
+
+msgid "Expires timedelta with seconds"
+msgstr "Expiração em Segundos"
+
+msgid "Timedelta with seconds which the schedule will no longer trigger the task to run"
+msgstr "Tempo em segundos após o qual o agendamento deixará de disparar a execução da tarefa"
+
+msgid "One-off Task"
+msgstr "Executar Apenas Uma Vez"
+
+msgid "If True, the schedule will only run the task a single time"
+msgstr "Se marcado, o agendamento executará a tarefa uma única vez"
+
+msgid "Start Datetime"
+msgstr "Data/Hora de Início"
+
+msgid "Datetime when the schedule should begin triggering the task to run"
+msgstr "Data/hora a partir da qual o agendamento deve começar a disparar a execução da tarefa"
+
+msgid "Enabled"
+msgstr "Ativo"
+
+msgid "Set to False to disable the schedule"
+msgstr "Desmarque para desativar o agendamento"
+
+msgid "Last Run Datetime"
+msgstr "Data/Hora da Última Execução"
+
+msgid "Datetime that the schedule last triggered the task to run. Reset to None if enabled is set"
+msgstr "Data/hora em que o agendamento disparou a tarefa pela última vez. É zerado quando o agendamento é reativado"
+
+msgid "Total Run Count"
+msgstr "Total de Execuções"
+
+msgid "Running count of how many times the schedule has triggered the task"
+msgstr "Contagem de quantas vezes o agendamento já disparou a tarefa"
+
+msgid "Last Modified"
+msgstr "Última Modificação"
+
+msgid "Datetime that this PeriodicTask was last modified"
+msgstr "Data/hora em que esta tarefa periódica foi modificada pela última vez"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Detailed description about the details of this Periodic Task"
+msgstr "Descrição detalhada sobre esta tarefa periódica"
+
+# django_celery_beat/admin.py - form fields
+msgid "Task (registered)"
+msgstr "Tarefa (registrada)"
+
+msgid "Task (custom)"
+msgstr "Tarefa (personalizada)"
+
+msgid "Need name of task"
+msgstr "É necessário informar o nome da tarefa"
+
+msgid "Only one can be set, in expires and expire_seconds"
+msgstr "Apenas um pode ser definido: expires ou expire_seconds"
+
+msgid "Unable to parse JSON: %s"
+msgstr "Não foi possível interpretar o JSON: %s"
+
+# django_celery_beat/admin.py - fieldset legends
+msgid "Schedule"
+msgstr "Agendamento"
+
+msgid "Arguments"
+msgstr "Argumentos"
+
+msgid "Execution Options"
+msgstr "Opções de Execução"
+
+# django_celery_beat/admin.py - admin actions
+msgid "Enable selected tasks"
+msgstr "Ativar tarefas selecionadas"
+
+msgid "Disable selected tasks"
+msgstr "Desativar tarefas selecionadas"
+
+msgid "Toggle activity of selected tasks"
+msgstr "Alternar status das tarefas selecionadas"
+
+msgid "Run selected tasks"
+msgstr "Executar tarefas selecionadas"
+
+msgid "{0} task was successfully enabled"
+msgid_plural "{0} tasks were successfully enabled"
+msgstr[0] "{0} tarefa foi ativada com sucesso"
+msgstr[1] "{0} tarefas foram ativadas com sucesso"
+
+msgid "{0} task was successfully disabled"
+msgid_plural "{0} tasks were successfully disabled"
+msgstr[0] "{0} tarefa foi desativada com sucesso"
+msgstr[1] "{0} tarefas foram desativadas com sucesso"
+
+msgid "{0} task was successfully toggled"
+msgid_plural "{0} tasks were successfully toggled"
+msgstr[0] "{0} tarefa teve o status alternado com sucesso"
+msgstr[1] "{0} tarefas tiveram o status alternado com sucesso"
