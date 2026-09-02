@@ -1,4 +1,7 @@
+from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
+from django.db import models
 from django.urls import path
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
@@ -24,6 +27,18 @@ class EventAdmin(admin.ModelAdmin):
 
     change_list_template = "event/event_changelist.html"
 
+    # Substitui o widget padrão (data e hora separadas, com o ícone de atalhos
+    # do Django Admin) por um único input nativo do navegador, que já informa
+    # o formato esperado e não tem o popup de atalhos de horário.
+    formfield_overrides = {
+        models.DateTimeField: {
+            "widget": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "vDateField", "style": "width: 100%"},
+                format="%Y-%m-%dT%H:%M",
+            )
+        },
+    }
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -48,27 +63,39 @@ class EventAdmin(admin.ModelAdmin):
                     event_local = row[3]
                     discipline_name = row[4]
 
-                    # Validação de data
-                    event_date = datetime.strptime(event_date_str, "%Y-%m-%d %H:%M")
-                    event_date = timezone.make_aware(event_date)
-                    if event_date and event_date.date() < timezone.localdate():
-                        errors.append(f"Linha {i}: data no passado ({event_date.strftime('%d/%m/%Y')})")
-                        continue
-
                     try:
+                        # A célula pode já vir como datetime (quando a coluna está formatada
+                        # como data/hora no Excel) ou como texto "AAAA-MM-DD HH:MM".
+                        if isinstance(event_date_str, datetime):
+                            event_date = event_date_str
+                        else:
+                            event_date = datetime.strptime(str(event_date_str).strip(), "%Y-%m-%d %H:%M")
+                        if timezone.is_naive(event_date):
+                            event_date = timezone.make_aware(event_date)
+
+                        if event_date.date() < timezone.localdate():
+                            errors.append(f"Linha {i}: data no passado ({event_date.strftime('%d/%m/%Y')})")
+                            continue
+
                         discipline = Discipline.objects.get(name=discipline_name)
+
+                        Event.objects.create(
+                            title=title,
+                            description=description,
+                            event_date=event_date,
+                            event_local=event_local,
+                            discipline=discipline,
+                            is_active=True,
+                        )
                     except Discipline.DoesNotExist:
                         errors.append(f"Linha {i}: disciplina '{discipline_name}' não encontrada")
-                        continue
-
-                    Event.objects.create(
-                        title=title,
-                        description=description,
-                        event_date=event_date,
-                        event_local=event_local,
-                        discipline=discipline,
-                        is_active=True,
-                    )
+                    except (ValueError, TypeError):
+                        errors.append(
+                            f"Linha {i}: data/horário inválido ('{event_date_str}'), "
+                            f"use o formato AAAA-MM-DD HH:MM"
+                        )
+                    except ValidationError as e:
+                        errors.append(f"Linha {i}: {'; '.join(e.messages)}")
 
                 # Adiciona as mensagens de erro ao template
                 if errors:

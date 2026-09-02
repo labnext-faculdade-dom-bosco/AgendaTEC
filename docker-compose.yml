@@ -1,6 +1,7 @@
 services:
   web:
     container_name: agenda_tec
+    restart: always
     build: .
     image: agenda-tec-image
     expose:
@@ -29,6 +30,7 @@ services:
   db:
     image: postgres:15
     container_name: agenda_tec_db
+    restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -67,6 +69,7 @@ services:
 
   redis:
     image: redis:7
+    restart: always
     ports:
       - "6379:6379"
     networks:
@@ -75,6 +78,7 @@ services:
   celery_worker:
     build: .
     command: celery -A core worker -l info
+    restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -92,6 +96,7 @@ services:
   celery_beat:
     build: .
     command: celery -A core beat -l info
+    restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -108,7 +113,9 @@ services:
 
   caddy:
     image: caddy:2-alpine
-    restart: unless-stopped
+    restart: always
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
     ports:
       - "80:80"
       - "443:443"
