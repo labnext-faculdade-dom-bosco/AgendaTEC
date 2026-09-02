@@ -1,4 +1,4 @@
-localhost {
+{$DOMAIN:localhost} {
     handle /dashboard* {
         reverse_proxy waha:3000
     }
