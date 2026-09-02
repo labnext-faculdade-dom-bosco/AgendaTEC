@@ -14,14 +14,21 @@ class AuthUserCustomConfig(AppConfig):
     @staticmethod
     def _hide_unused_admin_sections():
         """ Remove do Django Admin as seções usadas só internamente: "Contas" e
-        "Contas sociais" do allauth (integração de login com a Microsoft) e
-        "Sites", exigido pelo allauth mas sem uso direto pelo usuário. """
+        "Contas sociais" do allauth (integração de login com a Microsoft),
+        "Sites", exigido pelo allauth mas sem uso direto pelo usuário, e os
+        models de agendamento do django_celery_beat que não são "Tarefas
+        Periódicas" (só essa precisa aparecer no menu). """
         from django.contrib import admin
         from django.contrib.sites.models import Site
         from allauth.account.models import EmailAddress
         from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+        from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, SolarSchedule
 
-        for model in (EmailAddress, SocialAccount, SocialApp, SocialToken, Site):
+        models_to_hide = (
+            EmailAddress, SocialAccount, SocialApp, SocialToken, Site,
+            ClockedSchedule, CrontabSchedule, IntervalSchedule, SolarSchedule,
+        )
+        for model in models_to_hide:
             try:
                 admin.site.unregister(model)
             except admin.sites.NotRegistered:
