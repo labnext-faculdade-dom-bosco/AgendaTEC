@@ -49,116 +49,148 @@ AgendaTEC/
 - O PyCharm, assim como outras IDEs da [JetBrains](https://www.jetbrains.com/) 
 pode ser utilizado na versão Professional de forma gratuita com o email institucional. 
 
-# Configurando chave SSH
-Em ambiente Linux:
-1. Abra o terminal e execute o comando:
-    ```
-    ssh-keygen -t rsa -b 4096 -C "seu_email@exemplo.com" -f ~/.ssh/id_azure_rsa
-    ```
 
-Em ambiente Windows:
-    ```
-    ssh-keygen -t rsa -b 4096 -C "seu_email@exemplo.com" -f C:\Users\SEU_USUARIO\.ssh\id_azure_rsa
-    ```
+# Configuração de chave SSH e clone do repositório
 
-    Por padrão, as chaves serão salvas em:<br>
-    ~/.ssh/id_rsa        (chave privada)<br>
-    ~/.ssh/id_rsa.pub    (chave pública)<br>
+Para clonar um repositório do GitHub via SSH, cada pessoa precisa ter um par de chaves (uma privada e uma pública) e cadastrar a chave pública na própria conta do GitHub. Isso evita digitar usuário e senha toda vez que for usar o Git.
 
-    **OBS**: 
-   - O parâmetro **-f** passa o caminho e nome do arquivo em que as chaves serão geradas. 
-   Se não for passado, irá gerar um arquivo chamado id_rsa. Se você já tem uma chave SSH configurada 
-   para seu email pessoal pode conflitar. Por isso, é recomendado utilizar um nome específico para diferenciá-la.
+Siga os passos na ordem, usando o Git Bash (recomendado no Windows) ou o terminal do seu sistema operacional.
 
+## Pré-requisitos
 
-2. Inicie o agente SSH
+- Git instalado na máquina (o Git Bash já vem junto no Windows)
+- Conta pessoal no [GitHub](https://github.com)
+- Acesso liberado como colaborador no repositório `labnext-faculdade-dom-bosco/AgendaTEC`
 
-  Windows (Power Shell Admin):
+## Passo 1: Verificar se já existe uma chave SSH
 
-  **OBS**: 
-  O agente ssh por padrão vem desabilitado esses comandos servem para inicializá-lo: 
-  ```
-  Set-Service -Name ssh-agent -StartupType Manual
-  ```
-  ```
-  Start-Service ssh-agent
-  ```
-
-  Linux:
-  ```
-  eval "$(ssh-agent -s)"
-  ```
-
-  Adicione a chave:
-    
-  Linux:
-  ```
-  ssh-add ~/.ssh/id_azure_rsa
-  ```
-
-  Windows:
-  ```
-  ssh-add C:\Users\SEU_USUARIO\.ssh\id_azure_rsa
-  ```
-
-  Se a chave tiver uma passphrase, você vai precisar digitá-la aqui.
-
-
-3. (opcional) Se você já possui uma chave SSH pessoal e não quer ter que informar qual chave 
-utilizar para cada projeto, pode configurar a identificação automática para cada repositório.
-    Para fazer isso, abra um arquivo com o comando:
-    ```
-    nano ~/.ssh/config 
-    ```
-    E preencha com os valores:
-    ```
-    Host github.com
-       HostName github.com
-       User git
-       IdentityFile ~/.ssh/id_rsa
-       IdentitiesOnly yes
-
-    Host ssh.dev.azure.com
-       HostName ssh.dev.azure.com
-       User git
-       IdentityFile ~/.ssh/id_azure_rsa
-       IdentitiesOnly yes
-    ```
-   **OBS:** No exemplo acima, a chave pessoal (Github) está no arquivo **id_rsa**, 
-    e a chave do ambiente Labnext (Azure) está no arquivo **id_azure_rsa**. 
-    Dessa forma, o git identifica qual chave usar de acordo com a origem do repositório, não sendo necessário informar
-    qual chave deve ser utilizada em cada projeto.
-
-
-4. Abra o arquivo da chave pública que você gerou e copie o texto dela (será utilizado nos passos seguintes).
-    Linux:
-    ```
-    cat ~/.ssh/id_azure_rsa.pub
-    ```
-
-    Windows:
-    ```
-    Get-Content C:\Users\rthai\.ssh\id_azure_rsa.pub
-    ```
-5. Acessar o Azure com o email institucional
-6. Clique no ícone da engrenagem/configurações (User settings)
-7. Clique na opção "SSH public keys"
-8. Clique no sinal de adição (+ New Key)
-9. Atribua um nome para a chave. Ex.: **<azure-ssh-key-seu-nome>**
-10. Cole o texto que você copiou no passo 4 no campo "Public Key Data"
-
-**OBS:** Nunca compartilhe a chave privada! Apenas a chave pública deve ir para o Azure.
-
-# Clonando o repositório
-Escolha uma pasta para organizar o projeto, e clone o repositório com o comando:
+```bash
+ls -al ~/.ssh
 ```
-git clone git@ssh.dev.azure.com:v3/labnextfdb/AgendaTEC/AgendaTEC
+
+Esse comando lista os arquivos da pasta `.ssh`. Se já existirem os arquivos `id_ed25519` e `id_ed25519.pub`, pule direto para o Passo 5. Se a pasta não existir ou esses arquivos não aparecerem, siga para o próximo passo.
+
+Se o comando acima retornar um erro como `No such file or directory`, a pasta `.ssh` ainda não existe na sua máquina. Nesse caso, crie ela com:
+
+```bash
+mkdir ~/.ssh
 ```
-**OBS:**
-Se o git clone via SSH pedir senha mesmo após configurar a chave, force o Git a usar o OpenSSH do Windows:
+
+## Passo 2: Gerar uma nova chave SSH
+
+```bash
+ssh-keygen -t ed25519 -C "seuemail@exemplo.com"
 ```
-git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
+
+Troque `seuemail@exemplo.com` pelo e-mail cadastrado no seu GitHub. O `-t ed25519` define o tipo de chave (mais moderno e seguro que o antigo RSA) e o `-C` adiciona um comentário só para identificar a chave depois.
+
+O terminal vai fazer duas perguntas:
+
+- `Enter file in which to save the key`: aperte Enter para aceitar o local padrão.
+- `Enter passphrase`: uma senha extra, opcional, para proteger a chave. Pode digitar uma senha ou deixar em branco (Enter duas vezes). Atenção: se escolher usar senha, digite exatamente igual nas duas vezes, senão aparece `Passphrases do not match` e o processo pede de novo.
+
+Ao final, aparece uma mensagem parecida com esta, confirmando que a chave foi criada, incluindo o desenho (randomart) gerado a partir da chave:
+
 ```
+Your identification has been saved in /c/Users/seu-usuario/.ssh/id_ed25519
+Your public key has been saved in /c/Users/seu-usuario/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx seuemail@exemplo.com
+The key's randomart image is:
++--[ED25519 256]--+
+|      .oo.       |
+|     o  ..o      |
+|    . .  o .     |
+|   .  oo+.o      |
+|    ..o+S..      |
+|   .  +.=.+      |
+|    o..*.*.+     |
+|   . +.=.O.o     |
+|    .+=+E+o      |
++----[SHA256]-----+
+```
+
+O fingerprint e o desenho mudam a cada chave gerada, então o seu vai ser diferente do exemplo acima. O importante é essas linhas aparecerem, confirmando que a chave foi salva com sucesso.
+
+## Passo 3: Configurar o ssh-agent como serviço do Windows
+
+Isso só precisa ser feito uma vez em cada computador. Abra o PowerShell como Administrador (clique com o botão direito no ícone do PowerShell e escolha "Executar como administrador") e rode:
+
+```powershell
+Get-Service ssh-agent | Set-Service -StartupType Automatic
+Start-Service ssh-agent
+```
+
+Isso configura o ssh-agent para iniciar sozinho junto com o Windows, em vez de precisar ser iniciado manualmente a cada terminal novo.
+
+## Passo 4: Adicionar a chave ao ssh-agent
+
+De volta ao Git Bash, adicione a chave criada no Passo 2:
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+Como o ssh-agent agora roda como serviço do Windows, a chave fica guardada e carregada automaticamente mesmo depois de reiniciar o computador. Não deve ser necessário repetir esse comando depois disso.
+
+## Passo 5: Copiar a chave pública
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Isso mostra o conteúdo da chave pública no terminal. Copie tudo, do início (`ssh-ed25519`) até o final (o e-mail usado no `-C`).
+
+Importante: nunca compartilhe o arquivo `id_ed25519` (sem o `.pub`). Ele é a chave privada e deve ficar só na sua máquina.
+
+## Passo 6: Cadastrar a chave pública no GitHub
+
+1. Entre no GitHub e clique na sua foto de perfil, no canto superior direito.
+2. Vá em **Settings**.
+3. No menu lateral esquerdo, clique em **SSH and GPG keys**.
+4. Clique em **New SSH key**.
+5. Em **Title**, coloque um nome que identifique o computador (por exemplo, "Notebook pessoal").
+6. Em **Key**, cole a chave pública copiada no Passo 5.
+7. Clique em **Add SSH key**. O GitHub pode pedir a senha da conta ou o código de autenticação de dois fatores para confirmar.
+
+## Passo 7: Testar a conexão
+
+```bash
+ssh -T git@github.com
+```
+
+Na primeira conexão, pode aparecer uma pergunta perguntando se quer continuar: digite `yes` e aperte Enter. Se estiver tudo certo, a resposta será parecida com:
+
+```
+Hi seu-usuario! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+Essa mensagem confirma que a chave SSH está funcionando.
+
+## Passo 8: Clonar o repositório
+
+No mesmo terminal que você já vem usando (não precisa abrir o explorador de arquivos), use o `cd` para entrar na pasta onde quer guardar o projeto. O caminho `~/Documents` abaixo é só um exemplo, troque pelo caminho que você preferir:
+
+```bash
+cd ~/Documents
+```
+
+Depois, clone o repositório:
+
+```bash
+git clone git@github.com:labnext-faculdade-dom-bosco/AgendaTEC.git
+```
+
+Isso cria uma pasta chamada `AgendaTEC` com todo o código do projeto.
+
+## Passo 9: Conferir se deu certo
+
+```bash
+cd AgendaTEC
+git status
+```
+
+Se aparecer algo como `On branch develop, nothing to commit, working tree clean`, o clone funcionou.
 
 # Executando o projeto
 Com o projeto clonado abra na sua IDE e siga os passos abaixo:
