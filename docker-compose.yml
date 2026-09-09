@@ -1,7 +1,7 @@
 services:
   web:
     container_name: agenda_tec
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     build: .
     image: agenda-tec-image
     expose:
@@ -30,7 +30,7 @@ services:
   db:
     image: postgres:15
     container_name: agenda_tec_db
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -45,7 +45,7 @@ services:
   waha:
     image: devlikeapro/waha:latest
     container_name: wpp_bot_waha
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     ports:
       - "${WAHA_PORT}:3000"
     environment:
@@ -69,7 +69,7 @@ services:
 
   redis:
     image: redis:7
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     ports:
       - "6379:6379"
     networks:
@@ -78,7 +78,7 @@ services:
   celery_worker:
     build: .
     command: celery -A core worker -l info
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -96,7 +96,7 @@ services:
   celery_beat:
     build: .
     command: celery -A core beat -l info
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -113,7 +113,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
-    restart: always
+    restart: ${RESTART_POLICY:-no}
     environment:
       - DOMAIN=${DOMAIN:-localhost}
     ports:
