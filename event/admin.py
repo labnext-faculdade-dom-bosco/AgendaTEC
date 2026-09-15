@@ -16,14 +16,14 @@ import openpyxl
 class DisciplineAdmin(admin.ModelAdmin):
     list_display = ('name', 'description',)
     search_fields = ('name',)
-    list_filter = ('is_active',)
+    list_filter = ()
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'description',)
     search_fields = ('title',)
-    list_filter = ('is_active',)
+    list_filter = ()
 
     change_list_template = "event/event_changelist.html"
 
@@ -85,7 +85,6 @@ class EventAdmin(admin.ModelAdmin):
                             event_date=event_date,
                             event_local=event_local,
                             discipline=discipline,
-                            is_active=True,
                         )
                     except Discipline.DoesNotExist:
                         errors.append(f"Linha {i}: disciplina '{discipline_name}' não encontrada")
@@ -116,7 +115,7 @@ class EventAdmin(admin.ModelAdmin):
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('discipline', 'get_teacher_name')
     search_fields = ('student__username',)
-    list_filter = ('is_active',)
+    list_filter = ()
 
     @admin.display(description="Professor")
     def get_teacher_name(self, record):
