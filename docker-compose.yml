@@ -23,7 +23,6 @@ services:
     init: true
     depends_on:
       - db
-      - redis
     networks:
       - web
 
@@ -46,6 +45,8 @@ services:
     image: devlikeapro/waha:latest
     container_name: wpp_bot_waha
     restart: ${RESTART_POLICY:-no}
+    profiles:
+      - prod
     ports:
       - "${WAHA_PORT}:3000"
     environment:
@@ -70,6 +71,8 @@ services:
   redis:
     image: redis:7
     restart: ${RESTART_POLICY:-no}
+    profiles:
+      - prod
     ports:
       - "6379:6379"
     networks:
@@ -79,6 +82,8 @@ services:
     build: .
     command: celery -A core worker -l info
     restart: ${RESTART_POLICY:-no}
+    profiles:
+      - prod
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -97,6 +102,8 @@ services:
     build: .
     command: celery -A core beat -l info
     restart: ${RESTART_POLICY:-no}
+    profiles:
+      - prod
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - POSTGRES_DB=${POSTGRES_DB}
@@ -111,27 +118,9 @@ services:
     networks:
       - web
 
-  caddy:
-    image: caddy:2-alpine
-    restart: ${RESTART_POLICY:-no}
-    environment:
-      - DOMAIN=${DOMAIN:-localhost}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data # Armazena os certificados TLS
-      - caddy_config:/config
-      - ./logs/caddy:/data/logs
-    networks:
-      - web
-
 networks:
   web:
 
 volumes:
   pgdata:
   waha_data:
-  caddy_data:
-  caddy_config:

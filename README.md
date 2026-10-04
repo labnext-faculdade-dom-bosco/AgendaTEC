@@ -5,7 +5,6 @@ AgendaTEC/
 ├── .env                 # Variáveis de ambiente (Esse arquivo nunca é enviado para o repositório!)
 ├── .env.example         # Exemplo das variáveis de ambiente
 ├── .gitignore           # Arquivos ignorados pelo git
-├── Caddyfile            # Arquivo de configuração do DNS da aplicação
 ├── Dockerfile           # Criação da imagem do container da aplicação
 ├── docker compose.yml   # Orquestração dos containers
 ├── manage.py            # Utilizado para interagir com o projeto via linha de comando
@@ -30,8 +29,6 @@ AgendaTEC/
     └── migrations/      # Histórico de migrações do banco de dados
         └── __init__.py
 ```
-# Topologia de rede
-![Topologia de rede](docker_network_topology.svg)
 
 # Iniciando
 
@@ -225,6 +222,14 @@ Derruba os containers e para a aplicação
 docker compose down
 ```
 
+**Observações:**
+- Por padrão, `docker compose up` sobe **apenas** os containers `web` (Django) e `db` (Postgres), o suficiente pra desenvolver e testar a maior parte do projeto.
+- Acesse a aplicação em **http://localhost:8000** (repare que é `http`, não `https`). Veja a seção "Arquivos docker-compose e ambientes" mais abaixo para entender por quê.
+- `waha`, `redis`, `celery_worker` e `celery_beat` só existem pra funcionalidades que dependem de WhatsApp/tarefas agendadas, e ficam atrás do profile `prod`. Se precisar testar isso localmente, suba com:
+```
+docker compose --profile prod up -d
+```
+
 ### Banco de dados
 Para interagir com o banco de dados utilizamos o conceito de `migrações`.
 
@@ -283,196 +288,122 @@ Obs:
 que é utilizado para enviar mensagens pelo WhatsApp.
 
 
-# Configurando DNS e HTTPS
-Para configurar um DNS para a aplicação e garantir que seu protocolo seja HTTPS, 
-é necessário ajustar os seguintes arquivos:
-- Caddyfile
-- docker-compose.yml
-- .env
+# Arquivos docker-compose e ambientes
 
-## Caddyfile 
+O projeto usa três arquivos de compose, cada um com uma função específica.
+Na maioria das vezes você não precisa escolher nenhum na mão: o Compose
+decide sozinho com base no que está (ou não está) definido no `.env`.
 
-### Desenvolvimento local (localhost com HTTPS)
+| Arquivo | Quando é carregado | Para que serve |
+|---|---|---|
+| `docker-compose.yml` | sempre | Base do projeto: `web` e `db` sempre ativos. `waha`, `redis`, `celery_worker` e `celery_beat` também estão definidos aqui, mas atrás do profile `prod`. |
+| `docker-compose.override.yml` | automático, sempre que o arquivo existir e `COMPOSE_FILE` não estiver definido no `.env` (ou seja, em dev) | Publica a porta `8000` pro host, só pra dar acesso direto ao Django pelo navegador em dev, sem precisar do Caddy. |
+| `docker-compose.prod.yml` | só quando `COMPOSE_FILE` está definido explicitamente no `.env` | Liga `web` e `waha` na rede externa `caddy_net`, que é como o Caddy compartilhado (outro repositório, ver seção abaixo) alcança esses containers. |
 
-Usa certificado interno gerado pelo próprio Caddy.
-
-```
-localhost {
-    tls internal
-    reverse_proxy web:8000
-}
-```
-
-### Produção (domínio real)
-
-O Caddy emite e renova o certificado Let's Encrypt automaticamente.
-
-```
-meusite.com.br {
-    reverse_proxy web:8000 {
-        header_up X-Forwarded-Proto {scheme}
-    }
-}
-```
-
-`web` é o nome do serviço Django no `docker-compose.yml`.
-
-### Configurando logs de acesso
-Para configurar logs no Caddy, basta adicionar essa seção:
-```
-log {
-    output file /data/logs/access.log {
-        roll_size 10mb
-        roll_keep 10
-        roll_keep_for 720h
-        mode 0644
-    }
-    format json
-    level INFO
-}
-```
-- roll_size: Tamanho de cada arquivo de log;
-- rool_keep: Quantidade de arquivos de log;
-- roll_keep_for: Quantidade de horas que ele mantém os registros de log (default: 30 dias);
-- mode 0644: Permissão de leitura no arquivo
-
----
-
-## docker-compose.yml
-
-No `docker-compose.yml` é necessário adicionar o serviço `caddy` e garantir que todos os serviços 
-que precisam se comunicar estejam na mesma rede docker.
-
-```yaml
-services:
-  web:
-    expose:
-      - "8000"  # Não expõe a porta para o host pois o Caddy acessa internamente
-    networks:
-      - web
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"    # http
-      - "443:443"  # https
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data  # Armazena os certificados TLS
-      - caddy_config:/config
-    networks:
-      - web
-
-networks:
-  web:
-
-volumes:
-  caddy_data:
-  caddy_config:
-```
-
-**Importante:** todos os serviços que precisam se comunicar entre si devem estar na mesma rede (`web`). 
-Sem isso, o Caddy não alcança o Django e o Django não alcança o banco.
-
-## Variáveis de ambiente (.env)
-
-Desenvolvimento local:
-
-```env
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-CSRF_TRUSTED_ORIGINS=https://localhost
-```
-
-Produção:
-
-```env
-DJANGO_ALLOWED_HOSTS=meusite.com.br
-CSRF_TRUSTED_ORIGINS=https://meusite.com.br
-```
-
-Múltiplos valores separados por vírgula são suportados.
----
-
-## Subindo a aplicação
+## Desenvolvimento (padrão, sem mexer em nada)
 
 ```bash
 docker compose up -d
 ```
 
-Na primeira execução o Caddy já obtém o certificado automaticamente. Os volumes `caddy_data` e `caddy_config` devem sempre ser persistidos  sem eles os certificados são perdidos a cada restart.
+Isso sobe só `web` e `db`. Acesse em:
 
----
+```
+http://localhost:8000
+```
 
-## Desenvolvimento local  confiar no certificado
+Repare que é `http`, não `https`: o `runserver` do Django só fala HTTP. Se o
+navegador reescrever sozinho o endereço pra `https://localhost:8000` (alguns
+navegadores têm um modo "só conexões seguras" que faz isso automaticamente),
+o log do container `web` mostra um erro estranho, parecido com:
 
-Em ambiente local com `tls internal`, o browser exibe aviso de certificado não confiável. Para resolver:
+```
+code 400, message Bad request version (...)
+You're accessing the development server over HTTPS, but it only supports HTTP.
+```
+
+A correção é digitar o `http://` por completo na barra de endereços (ou
+desativar esse modo do navegador para `localhost`), não é um problema de
+configuração do projeto.
+
+Se precisar testar localmente as funcionalidades que dependem de
+WhatsApp/tarefas agendadas (`waha`, `redis`, `celery_worker`, `celery_beat`):
 
 ```bash
-# Instala o certificado raiz do Caddy no sistema
-docker compose exec caddy caddy trust
+docker compose --profile prod up -d
 ```
 
-Reinicia o browser completamente após rodar o comando.
-
-**Firefox** tem repositório próprio de certificados e ignora o do sistema. Exporta o certificado e importa manualmente:
+**Atenção ao derrubar os containers:** o `docker compose down` precisa ser
+chamado com o mesmo profile usado pra subir. Se você subiu com
+`--profile prod` e depois roda só `docker compose down`, alguns containers
+ficam órfãos presos na rede interna, e o Docker recusa remover essa rede
+(erro do tipo `Network ... still in use`). Na dúvida, use sempre:
 
 ```bash
-docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./caddy-root.crt
+docker compose --profile prod down
 ```
 
-Depois em `about:preferences#privacy` → **Ver Certificados** → **Importar** → seleciona `caddy-root.crt` → marca "Confiar para identificar sites".
+## Produção: proxy reverso e HTTPS
 
----
+O Caddy (proxy reverso + certificado HTTPS) **não faz parte deste
+repositório**. Ele roda como um serviço compartilhado, no servidor, usado por
+vários projetos ao mesmo tempo, no repositório
+[`labnext-caddy`](https://github.com/labnext-faculdade-dom-bosco/labnext-caddy).
 
-## Produção  pré-requisitos
+O que fica aqui, do lado do AgendaTEC:
+- [`deploy/caddy/agendatec.caddy`](deploy/caddy/agendatec.caddy): as rotas do
+  AgendaTEC para o Caddy compartilhado. É esse arquivo que muda se uma rota
+  nova for adicionada (ex.: um novo endpoint de API).
+- [`docker-compose.prod.yml`](docker-compose.prod.yml): liga `web` e `waha`
+  na rede externa `caddy_net` (ver tabela no início desta seção).
 
-Antes de subir em produção:
+No servidor, depois de criar a rede uma única vez:
 
-1. **DNS configurado**  o registro tipo `A` do domínio deve apontar para o IP do servidor
-2. **Portas abertas**  80 e 443 liberadas no firewall/security group do servidor
-3. **`DEBUG=False`** no `settings.py`
-4. **Gunicorn** no lugar do `runserver` no docker-compose.yml:
-
-```yaml
-command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
-```
-
-## Migração local → produção
-
-É necessário alterar apenas os arquivos: `.env` e `Caddyfile`.
-
-| Arquivo | Local | Produção |
-|---|---|---|
-| `Caddyfile` | `localhost { tls internal ... }` | `meusite.com.br { ... }` |
-| `DJANGO_ALLOWED_HOSTS` | `localhost` | `meusite.com.br` |
-| `CSRF_TRUSTED_ORIGINS` | `https://localhost` | `https://meusite.com.br` |
-
-O Caddy cuida do certificado Let's Encrypt automaticamente  sem nenhuma configuração extra.
-
----
-
-## Diagnóstico
-
-**Verificar se o Django está acessível pelo Caddy:**
 ```bash
-docker compose exec caddy wget -qO- http://web:8000
+docker network create caddy_net
 ```
 
-**Verificar logs do Caddy:**
+adicione estas duas linhas no `.env` do servidor:
+
+```env
+COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+COMPOSE_PROFILES=prod
+```
+
+A partir daí, o comando de sempre já faz tudo sozinho, sem precisar lembrar
+de `-f` nem `--profile` toda vez:
+
 ```bash
-docker compose logs caddy
+docker compose up -d
 ```
 
-**Testar HTTPS via curl:**
-```bash
-curl -v https://meusite.com.br
-```
+(Se preferir não mexer no `.env`, o mesmo resultado sai de
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d`.)
 
-**Verificar se as portas estão abertas:**
-```bash
-curl -v http://IP_DO_SERVIDOR
-curl -v https://IP_DO_SERVIDOR -k
-```
+Nesse cenário, acesse em `https://teste.agendatec.faculdadedombosco.net.br`
+(o domínio real do servidor), e não mais em `http://localhost:8000` (essa
+porta nem fica publicada em produção, ver tabela no início desta seção).
 
-Se travar no `Trying`, as portas estão bloqueadas no firewall.
+## Testando o fluxo completo (AgendaTEC + Caddy) sem precisar de um servidor
+
+Dá pra simular o ambiente de produção inteiro na sua própria máquina,
+incluindo o Caddy, sem precisar de DNS real nem de certificado de verdade. O
+passo a passo completo está no `README.md` do repositório `labnext-caddy`,
+seção "Testando localmente". Resumo rápido:
+
+1. No `labnext-caddy`: crie a rede (`docker network create caddy_net`, uma
+   vez) e copie o arquivo de rotas do AgendaTEC pra dentro de `sites/`
+   (`cp deploy/caddy/agendatec.caddy` do AgendaTEC pra
+   `labnext-caddy/sites/agendatec.caddy`).
+2. Troque o domínio na cópia que você acabou de fazer em `sites/` pra
+   `localhost`, só pra esse teste, e suba o Caddy (`docker compose up -d`).
+3. No AgendaTEC: descomente `COMPOSE_FILE`/`COMPOSE_PROFILES` no `.env` e
+   suba (`docker compose up -d`).
+4. Acesse `https://localhost/admin/` (o navegador vai avisar que o
+   certificado não é confiável, é o certificado interno do Caddy, pode
+   prosseguir mesmo assim).
+5. Pra voltar ao normal: comente de novo as duas linhas no `.env` do
+   AgendaTEC, derrube com `docker compose --profile prod down`, e no
+   `labnext-caddy` substitua `sites/agendatec.caddy` por uma cópia nova do
+   arquivo original (com o domínio real).
+
