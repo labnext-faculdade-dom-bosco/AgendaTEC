@@ -1,0 +1,13 @@
+# Override automático de desenvolvimento (Docker Compose carrega este arquivo
+# sozinho, sem precisar de -f, sempre que ele existir ao lado do
+# docker-compose.yml e COMPOSE_FILE não estiver definido no .env).
+#
+# Só existe pra dar acesso direto ao Django pelo navegador em dev, já que não
+# tem Caddy rodando localmente (ver README.md, seção "Proxy reverso e HTTPS").
+# Em produção, o .env define COMPOSE_FILE explicitamente (ver docker-compose.prod.yml),
+# o que faz o Compose ignorar este arquivo - nesse caso o `web` fica acessível
+# só via Caddy, não direto pela porta 8000.
+services:
+  web:
+    ports:
+      - "8000:8000"

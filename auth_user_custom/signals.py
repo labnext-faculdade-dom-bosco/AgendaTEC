@@ -27,7 +27,7 @@ def _set_disciplines_registration(user, disciplines_list):
 
         discipline_id, _ = Discipline.objects.get_or_create(
             name=discipline_name,
-            defaults={"is_active": True},
+            defaults={},
         )
         Registration.objects.get_or_create(
             student=user,

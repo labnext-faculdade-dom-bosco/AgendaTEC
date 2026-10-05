@@ -16,7 +16,7 @@ CATEGORY_COLORS = {
 class AcademicContentAdmin(admin.ModelAdmin):
     list_display = ("title", "description", "colored_category",)
     search_fields = ("title", "description", "category",)
-    list_filter = ("is_active",)
+    list_filter = ()
     formfield_overrides = {
         models.FileField: {
             'widget': forms.FileInput(attrs={'accept': 'application/pdf'})
@@ -38,11 +38,11 @@ class AcademicContentAdmin(admin.ModelAdmin):
 class AcademicFaqAdmin(admin.ModelAdmin):
     list_display = ("question", "answer",)
     search_fields = ("question", "answer",)
-    list_filter = ("is_active",)
+    list_filter = ()
 
 
 @admin.register(JobOpportunity)
 class JobOpportunityAdmin(admin.ModelAdmin):
     list_display = ("title", "description", "contract_type",)
     search_fields = ("title", "description", "contract_type", )
-    list_filter = ("is_active", "contract_type",)
+    list_filter = ("contract_type",)

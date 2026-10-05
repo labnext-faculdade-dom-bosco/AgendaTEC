@@ -1,0 +1,28 @@
+# Override de produção: liga este projeto ao Caddy compartilhado (repositório
+# labnext-caddy). Não usado em dev - por isso fica fora do docker-compose.yml
+# base, evitando que `docker compose up` normal precise da rede `caddy_net`.
+#
+# Uso (no servidor, depois de `docker network create caddy_net` uma única vez):
+#
+#   Opção A (recomendada) - configure uma vez no .env do servidor e esqueça:
+#     COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+#     COMPOSE_PROFILES=prod
+#   A partir daí, `docker compose up -d` sozinho já faz tudo.
+#
+#   Opção B - passar na mão toda vez:
+#     docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d
+services:
+  web:
+    networks:
+      - web
+      - caddy_net
+
+  waha:
+    networks:
+      - web
+      - caddy_net
+
+networks:
+  web:
+  caddy_net:
+    external: true

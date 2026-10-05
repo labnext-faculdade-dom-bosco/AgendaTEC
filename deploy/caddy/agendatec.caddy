@@ -1,0 +1,45 @@
+# Site do AgendaTEC para o Caddy compartilhado (repositório labnext-caddy).
+#
+# Dono deste arquivo: o repositório AgendaTEC. Qualquer mudança de rota do
+# AgendaTEC (novos endpoints, novos proxies) deve ser feita aqui.
+#
+# No servidor, este arquivo é copiado (ou linkado) para dentro de
+# labnext-caddy/sites/agendatec.caddy, que é importado automaticamente pelo
+# Caddyfile principal daquele repositório.
+#
+# Pré-requisito: o container `web` (e `waha`, se o profile "prod" estiver ativo)
+# deste projeto precisam estar na rede externa `caddy_net`.
+# isso é feito pelo docker-compose.prod.yml deste repositório (ver README.md).
+
+localhost {
+    handle /dashboard* {
+        reverse_proxy waha:3000
+    }
+
+    handle /api/events* {
+        reverse_proxy web:8000
+    }
+
+    handle /api* {
+        reverse_proxy waha:3000
+    }
+
+    handle /ws* {
+        reverse_proxy waha:3000
+    }
+
+    reverse_proxy web:8000 {
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    log {
+        output file /data/logs/agendatec-access.log {
+            roll_size 10mb
+            roll_keep 10
+            roll_keep_for 720h
+            mode 0644
+        }
+        format json
+        level INFO
+    }
+}

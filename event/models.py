@@ -7,7 +7,6 @@ from django.utils import timezone
 class Discipline(models.Model):
     name = models.CharField(max_length=100, blank=False, verbose_name="Nome")
     description = models.TextField(null=True, blank=True, verbose_name="Descrição")
-    is_active = models.BooleanField(default=True, verbose_name="Ativo")
     teacher = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT, verbose_name="Professor(a)")
     students = models.ManyToManyField(
         User,
@@ -30,7 +29,6 @@ class Event(models.Model):
     event_date = models.DateTimeField(verbose_name="Data e hora do evento")
     event_local = models.TextField(verbose_name="Local do evento")
     discipline = models.ForeignKey(Discipline, on_delete=models.PROTECT, verbose_name="Disciplina")
-    is_active = models.BooleanField(default=True, verbose_name="Ativo")
 
     class Meta:
         verbose_name = "Evento"
@@ -51,7 +49,6 @@ class Event(models.Model):
 class Registration(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Aluno")
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Disciplina")
-    is_active = models.BooleanField(default=True, verbose_name="Ativo")
 
     class Meta:
         verbose_name = "Matrícula"
