@@ -32,10 +32,11 @@ class EventAdmin(admin.ModelAdmin):
     # o formato esperado e não tem o popup de atalhos de horário.
     formfield_overrides = {
         models.DateTimeField: {
+            "form_class": forms.DateTimeField,
             "widget": forms.DateTimeInput(
                 attrs={"type": "datetime-local", "class": "vDateField", "style": "width: 100%"},
                 format="%Y-%m-%dT%H:%M",
-            )
+            ),
         },
     }
 
