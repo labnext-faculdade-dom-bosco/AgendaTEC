@@ -353,7 +353,9 @@ vários projetos ao mesmo tempo, no repositório
 O que fica aqui, do lado do AgendaTEC:
 - [`deploy/caddy/agendatec.caddy`](deploy/caddy/agendatec.caddy): as rotas do
   AgendaTEC para o Caddy compartilhado. É esse arquivo que muda se uma rota
-  nova for adicionada (ex.: um novo endpoint de API).
+  nova for adicionada (ex.: um novo endpoint de API). O domínio não está
+  escrito direto nele, vem de uma variável de ambiente (`AGENDATEC_DOMAIN`),
+  definida no `.env` do repositório `labnext-caddy`, não neste repositório.
 - [`docker-compose.prod.yml`](docker-compose.prod.yml): liga `web` e `waha`
   na rede externa `caddy_net` (ver tabela no início desta seção).
 
@@ -392,18 +394,18 @@ passo a passo completo está no `README.md` do repositório `labnext-caddy`,
 seção "Testando localmente". Resumo rápido:
 
 1. No `labnext-caddy`: crie a rede (`docker network create caddy_net`, uma
-   vez) e copie o arquivo de rotas do AgendaTEC pra dentro de `sites/`
+   vez), copie `.env.example` pra `.env` se ainda não tiver, e deixe
+   `AGENDATEC_DOMAIN` comentada ou como `localhost` (o padrão já é
+   `localhost` se a variável não existir). Copie o arquivo de rotas do
+   AgendaTEC pra dentro de `sites/`
    (`cp deploy/caddy/agendatec.caddy` do AgendaTEC pra
-   `labnext-caddy/sites/agendatec.caddy`).
-2. Troque o domínio na cópia que você acabou de fazer em `sites/` pra
-   `localhost`, só pra esse teste, e suba o Caddy (`docker compose up -d`).
-3. No AgendaTEC: descomente `COMPOSE_FILE`/`COMPOSE_PROFILES` no `.env` e
+   `labnext-caddy/sites/agendatec.caddy`) e suba o Caddy
+   (`docker compose up -d`).
+2. No AgendaTEC: descomente `COMPOSE_FILE`/`COMPOSE_PROFILES` no `.env` e
    suba (`docker compose up -d`).
-4. Acesse `https://localhost/admin/` (o navegador vai avisar que o
+3. Acesse `https://localhost/admin/` (o navegador vai avisar que o
    certificado não é confiável, é o certificado interno do Caddy, pode
    prosseguir mesmo assim).
-5. Pra voltar ao normal: comente de novo as duas linhas no `.env` do
-   AgendaTEC, derrube com `docker compose --profile prod down`, e no
-   `labnext-caddy` substitua `sites/agendatec.caddy` por uma cópia nova do
-   arquivo original (com o domínio real).
+4. Pra voltar ao normal: comente de novo as duas linhas no `.env` do
+   AgendaTEC e derrube com `docker compose --profile prod down`.
 
