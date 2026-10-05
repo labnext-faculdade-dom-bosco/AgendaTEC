@@ -10,8 +10,13 @@
 # Pré-requisito: o container `web` (e `waha`, se o profile "prod" estiver ativo)
 # deste projeto precisam estar na rede externa `caddy_net`.
 # isso é feito pelo docker-compose.prod.yml deste repositório (ver README.md).
+#
+# O domínio vem de uma variável de ambiente lida pelo Caddy (processo do
+# repositório labnext-caddy, não deste repositório): AGENDATEC_DOMAIN,
+# definida no .env do labnext-caddy. Sem essa variável, cai no padrão
+# "localhost" (serve para testar localmente, nunca deve ir pro servidor assim).
 
-localhost {
+{$AGENDATEC_DOMAIN:localhost} {
     handle /dashboard* {
         reverse_proxy waha:3000
     }
