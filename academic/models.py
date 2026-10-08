@@ -17,7 +17,7 @@ class AcademicContent(models.Model):
     )
     title = models.CharField(max_length=255, verbose_name="Título")
     description = models.TextField(blank=True, verbose_name="Descrição")
-    pdf_file = models.FileField(upload_to='academic_files/', blank=True, null=True)
+    pdf_file = models.FileField(upload_to='academic_files/', blank=True, null=True, verbose_name="Arquivo")
     created_on = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
 

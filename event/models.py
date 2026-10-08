@@ -38,7 +38,7 @@ class Event(models.Model):
         return self.title
 
     def clean(self):
-        if self.event_date and (self.event_date < timezone.now()):
+        if self.event_date and self.event_date.date() < timezone.localdate():
             raise ValidationError({"event_date": "A data não pode ser no passado."})
 
     def save(self, *args, **kwargs):

@@ -115,6 +115,7 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('discipline', 'get_teacher_name')
+    list_display_links = None
     search_fields = ('student__username',)
     list_filter = ()
 

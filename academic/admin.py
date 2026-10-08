@@ -12,14 +12,20 @@ CATEGORY_COLORS = {
 }
 
 
+class PdfClearableFileInput(forms.ClearableFileInput):
+    """ ClearableFileInput com o link do arquivo atual estilizado como botão
+    (em vez do texto "Atualmente: <caminho interno>" padrão do Django). """
+    template_name = "academic/widgets/pdf_clearable_file_input.html"
+
+
 @admin.register(AcademicContent)
 class AcademicContentAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "colored_category",)
+    list_display = ("title", "description", "colored_category", "pdf_link",)
     search_fields = ("title", "description", "category",)
     list_filter = ()
     formfield_overrides = {
         models.FileField: {
-            'widget': forms.FileInput(attrs={'accept': 'application/pdf'})
+            'widget': PdfClearableFileInput(attrs={'accept': 'application/pdf'})
         },
     }
 
@@ -32,6 +38,16 @@ class AcademicContentAdmin(admin.ModelAdmin):
         )
 
     colored_category.short_description = "Categoria"
+
+    def pdf_link(self, obj):
+        if not obj.pdf_file:
+            return "-"
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">Abrir arquivo</a>',
+            obj.pdf_file.url,
+        )
+
+    pdf_link.short_description = "Arquivo"
 
 
 @admin.register(AcademicFaq)

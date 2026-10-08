@@ -1,0 +1,9 @@
+{% load i18n %}
+{# Sobrescreve o template do Jazzmin só pros models do app "academic"       #}
+{# (Conteúdo Acadêmico, FAQ, Vagas): remove o botão "Histórico", que o      #}
+{# Jazzmin renderiza sem nenhuma checagem de permissão por padrão.         #}
+{% block object-tools-items %}
+    {% if has_absolute_url %}
+        <a href="{{ absolute_url }}" class="btn btn-block btn-secondary btn-sm">{% trans "View on site" %}</a>
+    {% endif %}
+{% endblock %}
