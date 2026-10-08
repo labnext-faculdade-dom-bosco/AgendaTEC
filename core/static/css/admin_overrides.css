@@ -1,0 +1,34 @@
+/* Links dentro das mensagens de sucesso/aviso do admin (ex.: "O Conteudo
+   Academico 'X' foi alterado com sucesso.") devem ter a mesma cor do
+   restante do texto da mensagem, nao a cor padrao de link. */
+.alert a {
+    color: inherit !important;
+}
+
+/* Botao nativo "Escolher arquivo" dos campos de upload: cinza (nao azul),
+   pra nao se confundir com botoes de acao como "Abrir arquivo atual". */
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.15s ease-in-out;
+}
+
+input[type="file"]:hover::file-selector-button,
+input[type="file"]:hover::-webkit-file-upload-button {
+    background-color: #5a6268;
+}
+
+/* Quando ja existe um arquivo anexado (o botao "Abrir arquivo atual" ja
+   aparece acima), esconde o texto nativo "Nenhum arquivo selecionado" do
+   navegador, que fica confuso do lado desse botao. O botao de escolher
+   continua aparecendo normalmente. */
+input[type="file"].pdf-input-has-file {
+    color: transparent;
+}

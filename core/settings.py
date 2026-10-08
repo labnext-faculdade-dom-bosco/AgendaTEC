@@ -151,6 +151,7 @@ JAZZMIN_SETTINGS = {
     "site_logo": "img/agenda_tec_logo.png",
     "favicon": None,
     "site_logo_classes": "img-fluid",
+    "custom_css": "css/admin_overrides.css",
 }
 
 # Envio automático de mensagens

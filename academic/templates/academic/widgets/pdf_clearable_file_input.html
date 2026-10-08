@@ -1,0 +1,15 @@
+{% if widget.is_initial %}
+<div style="margin-bottom: 10px;">
+    <a href="{{ widget.value.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+        <i class="fas fa-file-pdf"></i> Abrir arquivo atual
+    </a>
+    {% if not widget.required %}
+    <label style="margin-left: 12px; font-weight: normal;">
+        <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+        {{ widget.clear_checkbox_label }}
+    </label>
+    {% endif %}
+</div>
+{{ widget.input_text }}:
+{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.is_initial %} class="pdf-input-has-file"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
