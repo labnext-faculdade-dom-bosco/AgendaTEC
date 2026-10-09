@@ -14,7 +14,22 @@ class CalendarView(generic.View):
 
 class EventListView(generic.View):
     def get(self, request, *args, **kwargs):
-        events = Event.objects.all()
+        """
+            Retorna os eventos de acordo com o perfil do usuário.
+
+            Admin:      Todos os eventos
+            Professor:  Somente eventos das disciplinas que ministra
+            Aluno:      Somente eventos das disciplinas que está cursando
+        """
+
+        user = request.user
+        if user.groups.filter(name="Aluno").exists():
+            events = Event.objects.filter(discipline__students=user)
+        elif user.groups.filter(name="Professor").exists():
+            events = Event.objects.filter(discipline__teacher=user)
+        else:
+            events = Event.objects.all()
+
         event_list = []
 
         for event in events:
