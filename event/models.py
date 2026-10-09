@@ -6,6 +6,13 @@ from django.utils import timezone
 
 class Discipline(models.Model):
     name = models.CharField(max_length=100, blank=False, verbose_name="Nome")
+    code = models.CharField(
+        max_length=50,
+        unique=True,
+        null=True, blank=True,
+        verbose_name="Código",
+        help_text="Código GVDASA.",
+    )
     description = models.TextField(null=True, blank=True, verbose_name="Descrição")
     teacher = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT, verbose_name="Professor(a)")
     students = models.ManyToManyField(

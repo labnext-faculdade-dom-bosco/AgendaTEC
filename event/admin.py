@@ -40,6 +40,21 @@ class EventAdmin(admin.ModelAdmin):
         },
     }
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "discipline":
+            if request.user.is_superuser:
+                # Administradores veem todas as disciplinas.
+                kwargs["queryset"] = Discipline.objects.all()
+            else:
+                # Professores veem somente suas disciplinas.
+                kwargs["queryset"] = Discipline.objects.filter(
+                    teacher=request.user
+                )
+
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -78,7 +93,25 @@ class EventAdmin(admin.ModelAdmin):
                             errors.append(f"Linha {i}: data no passado ({event_date.strftime('%d/%m/%Y')})")
                             continue
 
-                        discipline = Discipline.objects.get(name=discipline_name)
+                        discipline_queryset = Discipline.objects.all()
+                        if not request.user.is_superuser:
+                            # Professor só pode importar eventos pras disciplinas que ministra.
+                            discipline_queryset = discipline_queryset.filter(teacher=request.user)
+
+                        # Busca por nome "contém" (equivalente a LIKE %valor%), pro
+                        # professor não precisar digitar o nome exato da disciplina.
+                        matches = discipline_queryset.filter(name__icontains=str(discipline_name).strip())
+                        match_count = matches.count()
+                        if match_count == 0:
+                            errors.append(f"Linha {i}: disciplina '{discipline_name}' não encontrada")
+                            continue
+                        if match_count > 1:
+                            errors.append(
+                                f"Linha {i}: '{discipline_name}' corresponde a {match_count} disciplinas, "
+                                f"seja mais específico"
+                            )
+                            continue
+                        discipline = matches.first()
 
                         Event.objects.create(
                             title=title,
@@ -87,8 +120,6 @@ class EventAdmin(admin.ModelAdmin):
                             event_local=event_local,
                             discipline=discipline,
                         )
-                    except Discipline.DoesNotExist:
-                        errors.append(f"Linha {i}: disciplina '{discipline_name}' não encontrada")
                     except (ValueError, TypeError):
                         errors.append(
                             f"Linha {i}: data/horário inválido ('{event_date_str}'), "
