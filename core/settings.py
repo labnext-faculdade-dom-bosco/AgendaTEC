@@ -147,11 +147,24 @@ JAZZMIN_SETTINGS = {
     "site_header": "AgendaTEC",
     "welcome_sign": "Bem-vindo(a)!",
     "site_brand": "AgendaTEC",
-    "login_logo": "img/agenda_tec_logo.png",
-    "site_logo": "img/agenda_tec_logo.png",
+    "login_logo": "img/agenda_tec_logo.svg",
+    "site_logo": "img/agenda_tec_logo_menu.svg",
     "favicon": None,
     "site_logo_classes": "img-fluid",
-    "custom_css": "css/admin_overrides.css",
+    "custom_css": "css/admin_overrides_v2.css",
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.Group": "fas fa-users",
+        "auth.user": "fas fa-user",
+        "auth_user_custom.User": "fas fa-user",
+        "academic.AcademicContent": "fas fa-book-open",
+        "academic.AcademicFaq": "fas fa-question-circle",
+        "academic.JobOpportunity": "fas fa-briefcase",
+        "event.CalendarModelView": "fas fa-calendar-alt",
+        "event.Discipline": "fas fa-chalkboard-teacher",
+        "event.Event": "fas fa-calendar-check",
+        "event.Registration": "fas fa-user-graduate",
+    },
 }
 
 # Envio automático de mensagens

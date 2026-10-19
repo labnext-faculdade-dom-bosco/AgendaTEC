@@ -5,6 +5,36 @@
     color: inherit !important;
 }
 
+/* A marca ja inclui o nome: mostra somente a logo no cabecalho. */
+.main-sidebar .brand-link {
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 105px;
+    padding: 10px;
+}
+
+.main-sidebar .brand-link .brand-text {
+    display: none;
+}
+
+.main-sidebar .brand-link .brand-image {
+    float: none;
+    margin: 0 !important;
+    width: 150px;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    border-radius: 0;
+}
+
+body.sidebar-collapse .main-sidebar:not(:hover) .brand-link .brand-image {
+    width: 45px;
+}
+
 /* Botao nativo "Escolher arquivo" dos campos de upload: cinza (nao azul),
    pra nao se confundir com botoes de acao como "Abrir arquivo atual". */
 input[type="file"]::file-selector-button,
