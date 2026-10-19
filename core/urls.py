@@ -25,6 +25,7 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path("calendar/", views.CalendarView.as_view(), name="calendar"),
     path("api/events/", views.EventListView.as_view(), name="event-list"),
+    path("api/events/<int:pk>/students/", views.EventStudentsView.as_view(), name="event-students"),
     path('accounts/', include('allauth.urls')),
     path("", admin.site.urls),
 ]

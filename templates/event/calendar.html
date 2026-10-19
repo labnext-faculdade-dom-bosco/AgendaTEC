@@ -47,6 +47,10 @@
         #modalFooter { padding: 15px 25px; border-top: 1px solid #eee; text-align: right; }
         #btnClose { background: #667eea; color: white; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; }
         #btnClose:hover { background: #5568d3; }
+        #btnStudents { background: #667eea; color: white; border: 0; padding: 10px 20px; border-radius: 6px; margin-right: 10px; cursor: pointer; }
+        #studentsPanel { margin-top: 20px; max-height: 240px; overflow-y: auto; }
+        #studentsPanel table { width: 100%; border-collapse: collapse; }
+        #studentsPanel th, #studentsPanel td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
     </style>
 {% endblock %}
 
@@ -58,7 +62,7 @@
     <div id="calendar"></div>
 
     <div id="modalOverlay">
-        <div id="modalBox">
+        <div id="modalBox" role="dialog" aria-modal="true" aria-labelledby="eventTitle">
             <div id="modalHeader">
                 <h2 id="eventTitle"></h2>
             </div>
@@ -79,8 +83,10 @@
                     <strong>Disciplina</strong>
                     <span id="eventDiscipline"></span>
                 </div>
+                <section id="studentsPanel" hidden aria-live="polite"></section>
             </div>
             <div id="modalFooter">
+                <button id="btnStudents" type="button" hidden aria-controls="studentsPanel" aria-expanded="false">Alunos</button>
                 <button id="btnClose">Fechar</button>
             </div>
         </div>
@@ -92,8 +98,19 @@
     <script>
         var modalOverlay = document.getElementById('modalOverlay');
         var btnClose = document.getElementById('btnClose');
+        var btnStudents = document.getElementById('btnStudents');
+        var studentsPanel = document.getElementById('studentsPanel');
+        var studentsUrl = null;
+        var studentsRequest = null;
 
         function ShowModal(evento) {
+            if (studentsRequest) studentsRequest.abort();
+            studentsUrl = evento.extendedProps.students_url || null;
+            btnStudents.hidden = !studentsUrl;
+            btnStudents.disabled = false;
+            btnStudents.setAttribute('aria-expanded', 'false');
+            studentsPanel.hidden = true;
+            studentsPanel.replaceChildren();
             document.getElementById('eventTitle').textContent = evento.title;
             document.getElementById('eventDate').textContent = evento.start.toLocaleDateString('pt-BR', {
                 weekday: 'long',
@@ -106,11 +123,62 @@
             document.getElementById('eventDiscipline').textContent = evento.extendedProps.discipline || 'Não informada';
 
             modalOverlay.classList.add('active');
+            btnClose.focus();
         }
 
         function CloseModal() {
+            if (studentsRequest) studentsRequest.abort();
             modalOverlay.classList.remove('active');
         }
+
+        btnStudents.addEventListener('click', async function() {
+            if (!studentsUrl) return;
+            studentsPanel.hidden = false;
+            btnStudents.setAttribute('aria-expanded', 'true');
+            studentsPanel.textContent = 'Carregando alunos…';
+            btnStudents.disabled = true;
+            var controller = new AbortController();
+            studentsRequest = controller;
+            try {
+                var response = await fetch(studentsUrl, {signal: controller.signal, headers: {'Accept': 'application/json'}});
+                if (!response.ok || response.redirected) throw new Error('Consulta indisponível');
+                var data = await response.json();
+                studentsPanel.replaceChildren();
+                var heading = document.createElement('h3');
+                heading.textContent = 'Alunos matriculados (' + data.students.length + ')';
+                studentsPanel.appendChild(heading);
+                if (!data.students.length) {
+                    studentsPanel.appendChild(document.createTextNode('Nenhum aluno matriculado nesta disciplina.'));
+                    return;
+                }
+                var table = document.createElement('table');
+                var header = table.createTHead().insertRow();
+                ['Aluno', 'Conclusão'].forEach(function(label) {
+                    var th = document.createElement('th');
+                    th.scope = 'col';
+                    th.textContent = label;
+                    header.appendChild(th);
+                });
+                var body = table.createTBody();
+                data.students.forEach(function(student) {
+                    var row = body.insertRow();
+                    row.insertCell().textContent = student.name;
+                    row.insertCell().textContent = 'Não disponível';
+                });
+                studentsPanel.appendChild(table);
+                var note = document.createElement('p');
+                note.textContent = 'A situação de conclusão ainda não está disponível.';
+                studentsPanel.appendChild(note);
+            } catch (error) {
+                if (error.name !== 'AbortError') studentsPanel.textContent = 'Não foi possível consultar os alunos. Clique em Alunos para tentar novamente.';
+            } finally {
+                if (studentsRequest === controller) btnStudents.disabled = false;
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') CloseModal();
+        });
 
         btnClose.addEventListener('click', CloseModal);
 
